@@ -1,0 +1,6 @@
+*.sqlite3
+*.pyc
+*.swp
+*.swo
+Gemfile.lock
+test-site/.sass-cache
