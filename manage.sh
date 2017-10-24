@@ -1,9 +1,5 @@
 #!/bin/bash
 
-activate_venv() {
-  source ./crawler/.venv/bin/activate
-}
-
 # Run crawler server locally
 start_crawler () {
   activate_venv
@@ -21,10 +17,34 @@ start_test_site () {
   remote_bundle exec jekyll serve
 }
 
-install () {
-  parameter_virtualenv
-  parameter_bundle
+install_python_deps () {
+  echo Installing python dependencies
+  pip3 install -r crawler/requirements.txt
+}
 
+install_ruby_deps () {
+  echo Installing ruby dependencies
+  remote_bundle install
+}
+
+# VIRTUALENV FUNCTIONS
+
+install_venv () {
+  pip3 install --user virtualenv
+}
+
+setup_venv () {
+  virtualenv -p python3 .venv
+}
+
+activate_venv () {
+  source .venv/bin/activate
+}
+
+install () {
+  install_venv
+  setup_venv
+  activate_venv
   install_python_deps
   install_ruby_deps
 }

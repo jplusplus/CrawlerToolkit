@@ -5,15 +5,19 @@
 ### Prequisites
 To install all dependencies (see [Dependencies]()) you must have the following programs installed on your computer:
 
-- python (>= 3.4) 
+- python (>= 3.4)
 - ruby (>= 2.4)
 - rvm is also recommanded
 
 ### Get the sources
 ```sh
-git clone https://github.com/pbellon/CrawlerToolkit
+# if you have the rights to edit this repo
+git clone git@github.com:pbellon/CrawlerToolkit.git
+# Otherwise
+git clone https://github.com/pbellon/CrawlerToolkit.git
 
 ```
+
 ### Install
 ```sh
 ./manage.sh install
@@ -24,7 +28,20 @@ git clone https://github.com/pbellon/CrawlerToolkit
 ### Run servers 
 The application comes with 2 parts: 
 - the crawler itself
-- the 
+- the site to test it against. 
+
+Run the crawler
+```sh
+
+./manage.sh start_crawler
+```
+
+Run the test site
+```sh
+./manage start_test_site
+``` 
+
+
 
 
 ## Deploy
