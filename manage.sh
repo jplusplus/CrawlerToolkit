@@ -6,10 +6,16 @@ django () {
   ./crawler/manage.py $@
 }
 
-# Run crawler server locally
-start_crawler () {
+makemigrations () {
+  django makemigrations
+}
+migrate () {
+  django migrate
+}
+
+pip () {
   activate_venv
-  django runserver
+  pip3 $@
 }
 
 remote_bundle () {
@@ -21,11 +27,6 @@ remote_bundle () {
 # Operations on jekyll 
 jekyll () {
   remote_bundle exec jekyll $@
-}
-
-# Run test site
-start_test_site () {
-  jekyll serve
 }
 
 install_python_deps () {
@@ -58,6 +59,28 @@ install () {
   activate_venv
   install_python_deps
   install_ruby_deps
+}
+
+# Run crawler server locally
+start_crawler () {
+  activate_venv
+  django runserver
+}
+
+# Run test site
+start_test_site () {
+  jekyll serve
+}
+
+start_redis () {
+  redis-server --port 7878
+}
+
+start () {
+  tmux new-session -d -s config './manage.sh start_crawler'
+  tmux split-window -h -t config './manage.sh start_redis'
+  tmux split-window -v -t config './manage.sh start_test_site'
+  tmux -2 attach-session -t config
 }
 
 if [[ "$(type -t $@)" =~ .*function ]];

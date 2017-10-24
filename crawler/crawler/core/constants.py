@@ -25,9 +25,9 @@ STATES.ARCHIVE = States((
     ('NO_ARCHIVING', 'No archiving is needed'),
 ))
 
-STATES.PRESERVATION_TAGS = ((
+STATES.PRESERVATION_TAGS = States((
     ('PRIORITY', 'preservation:priority'),
-    ('REALEASE_DATE', 'preservation:release_date'),
+    ('RELEASE_DATE', 'preservation:release_date'),
     ('NOT_FOUND_ONLY','preservation:notfound_only'),
 ))
 

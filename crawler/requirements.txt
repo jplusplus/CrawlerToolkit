@@ -1,2 +1,9 @@
+Starting pip freeze
+amqp==2.2.2
+billiard==3.5.0.3
+celery==4.1.0
 Django==1.11.6
+django-material==1.0.0
+kombu==4.1.0
 pytz==2017.2
+vine==1.1.4
