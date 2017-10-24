@@ -9,8 +9,20 @@ django () {
 makemigrations () {
   django makemigrations
 }
+
 migrate () {
   django migrate
+}
+
+
+install_python_deps () {
+  echo Installing python dependencies
+  pip install -r crawler/requirements.txt
+}
+
+update_requirements () {
+  activate_venv
+  pip freeze > crawler/requirements.txt
 }
 
 pip () {
@@ -29,10 +41,6 @@ jekyll () {
   remote_bundle exec jekyll $@
 }
 
-install_python_deps () {
-  echo Installing python dependencies
-  pip3 install -r crawler/requirements.txt
-}
 
 install_ruby_deps () {
   echo Installing ruby dependencies
@@ -64,6 +72,7 @@ install () {
 # Run crawler server locally
 start_crawler () {
   activate_venv
+  migrate
   port=${1:-4000}
   django runserver $port 
 }

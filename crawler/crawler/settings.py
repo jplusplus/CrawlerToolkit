@@ -119,3 +119,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Celery configuration
+CELERY_BROKER_URL = 'redis://localhost:3000'
+CELERY_RESULT_BACKEND = 'redis://localhost:3000'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
