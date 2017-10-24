@@ -64,16 +64,19 @@ install () {
 # Run crawler server locally
 start_crawler () {
   activate_venv
-  django runserver
+  port=${1:-4000}
+  django runserver $port 
 }
 
 # Run test site
 start_test_site () {
-  jekyll serve
+  port=${1:-5000}
+  jekyll serve --port $port
 }
 
 start_redis () {
-  redis-server --port 7878
+  port=${1:-3000}
+  redis-server --port $port
 }
 
 start () {

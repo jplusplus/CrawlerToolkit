@@ -37,8 +37,9 @@ sudo dnf install redis
 ./manage.sh install
 ```
 
-#### *(optionnal) Install tmux*
-We've created a way to locally run all services / parts of the application at once (See "Run all services in one command") however it depends on tmux in order to be able to create pane.
+#### 3. *(optionnal) Install tmux*
+We've created a way to locally run all services / parts of the application at once (See "Run servers") however it depends on tmux in order to be able to create pane.
+
 ```sh
 # On Mac OS X
 brew install tmux
@@ -51,21 +52,16 @@ sudo dnf install tmux
 ## How to use
 
 ### Run servers 
-The application comes with 2 parts: 
-- the crawler itself
-- the site to test it against. 
-
-However it relies on redis in order to make Django & Celery work together (see Architecture). 
 
 ```sh
-# 1. Run redis
-./manage.sh start_redis
+# 1. Start the redis server
+./manage.sh start_redis <optional port, default: 3000>
 
 # 2. Run the crawler
-./manage.sh start_crawler
+./manage.sh start_crawler <optional port, default: 4000>
 
 # 3. Run the test site
-./manage start_test_site
+./manage start_test_site <optional port, default 5000>
 ``` 
 
 Or you can run all those services at once but it requires you to install tmux (see Install)
