@@ -31,3 +31,7 @@ STATES.PRESERVATION_TAGS = States((
     ('NOT_FOUND_ONLY','preservation:notfound_only'),
 ))
 
+
+FEED_TYPES = POPO()
+FEED_TYPES.TWITTER = 'TWITTER'
+FEED_TYPES.RSS = 'RSS'
