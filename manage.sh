@@ -1,6 +1,11 @@
 #!/bin/bash
 
 # Operations on django
+admin () {
+  activate_venv
+  django-admin $@
+}
+
 django () {
   activate_venv
   ./crawler/manage.py $@
@@ -25,6 +30,8 @@ update_requirements () {
   pip freeze > crawler/requirements.txt
 }
 
+# force the use of pip3 (either from this own script
+# or by calling it at the exterior (./manage.sh pip ...)
 pip () {
   activate_venv
   pip3 $@
