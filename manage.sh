@@ -1,9 +1,15 @@
 #!/bin/bash
 
+# Operations on django
+django () {
+  activate_venv
+  ./crawler/manage.py $@
+}
+
 # Run crawler server locally
 start_crawler () {
   activate_venv
-  ./crawler/manage.py runserver
+  django runserver
 }
 
 remote_bundle () {
@@ -12,9 +18,14 @@ remote_bundle () {
   cd ..
 }
 
+# Operations on jekyll 
+jekyll () {
+  remote_bundle exec jekyll $@
+}
+
 # Run test site
 start_test_site () {
-  remote_bundle exec jekyll serve
+  jekyll serve
 }
 
 install_python_deps () {

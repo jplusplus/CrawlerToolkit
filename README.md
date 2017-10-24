@@ -41,8 +41,16 @@ Run the test site
 ./manage start_test_site
 ``` 
 
+### Operation on the django application
+If you need to perform operations on the application you have access to all django commands throught the following command:
+```sh
+./manage.sh django --help
+```
 
-
+### Operation on the jekyll application
+```sh
+./manage.sh jekyll --help
+```
 
 ## Deploy
 
