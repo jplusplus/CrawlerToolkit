@@ -1,24 +1,33 @@
 import json
 import requests
-from oauth_hook import OAuthHook
+from requests_oauthlib import OAuth1
 
+from django.conf import settings
 
-twitter_api_url = 'https://api.twitter.com/1.1'
-oauth_hook = OAuthHook(access_token, access_token_secret, consumer_key,
-        consumer_secret, oauth_header)
+twitter = settings.TWITTER
 
-client = requests.session(hooks={'pre_request': oauth_hook})
+auth = OAuth1(
+    twitter.CONSUMER_KEY, twitter.CONSUMER_SECRET,
+    twitter.ACCESS_TOKEN, twitter.ACCESS_SECRET,
+)
 
 def scrape(account_name):
-    r = client.get((
-        '{api_url}{endpoint}?exclude_replies=true&include_rts=true'
+    # implied multiline string.
+    urls = list()
+    url  = (
+        'https://api.twitter.com/1.1/statuses/user_timeline.json'
+        '?exclude_replies=true&include_rts=true'
         '&screen_name={name}&count={count}'
-        ).format(
-            endpoint='/statuses/user_timeline.json',
-            api_url=twitter_api_url,
-            name=account_name,
-            count=200
+    ).format(name=account_name, count=200)
+    req = requests.get(url, auth=auth)
+    tweets = req.json()
+    for tweet in tweets:
+        tweet_urls = tweet['entities']['urls']
+        if tweet['retweeted']:
+            tweet_urls = tweet['retweeted_status']['entities']['urls']
+
+        urls = urls + list(
+            map(lambda url_obj: url_obj['expanded_url'], tweet_urls)
         )
-    )
 
     return urls
