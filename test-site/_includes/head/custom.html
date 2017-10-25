@@ -1,0 +1,6 @@
+<!-- Custom preservation meta tags -->
+{% if page.preserve %}
+  {% for preserve in page.preserve %}
+    <meta name="preserve:{{ preserve.type }}" content="{{ preserve.value }}"/>
+  {% endfor %}
+{% endif %}
