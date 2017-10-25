@@ -2,12 +2,12 @@
 
 # Operations on django
 admin () {
-  activate_venv
+  setup_env
   django-admin $@
 }
 
 django () {
-  activate_venv
+  setup_env
   ./crawler/manage.py $@
 }
 
@@ -19,6 +19,12 @@ migrate () {
   django migrate
 }
 
+python_shell() {
+  setup_env
+  cd crawler
+  ipython
+  cd -
+}
 
 install_python_deps () {
   echo Installing python dependencies
@@ -26,14 +32,14 @@ install_python_deps () {
 }
 
 update_requirements () {
-  activate_venv
+  setup_env
   pip freeze > crawler/requirements.txt
 }
 
 # force the use of pip3 (either from this own script
 # or by calling it at the exterior (./manage.sh pip ...)
 pip () {
-  activate_venv
+  setup_env
   pip3 $@
 }
 
@@ -51,6 +57,7 @@ jekyll () {
 
 install_ruby_deps () {
   echo Installing ruby dependencies
+  gem install bundler
   remote_bundle install
 }
 
@@ -58,27 +65,28 @@ install_ruby_deps () {
 
 install_venv () {
   pip3 install --user virtualenv
-}
-
-setup_venv () {
   virtualenv -p python3 .venv
 }
 
-activate_venv () {
+setup_env () {
+  if [ -f .env ]
+  then
+    echo ".env file found, sourcing it for environnement variables" 
+    source .env
+  fi;
   source .venv/bin/activate
 }
 
 install () {
   install_venv
-  setup_venv
-  activate_venv
+  setup_env
   install_python_deps
   install_ruby_deps
 }
 
 # Run crawler server locally
 start_crawler () {
-  activate_venv
+  setup_env
   migrate
   port=${1:-4000}
   django runserver $port 
@@ -100,6 +108,17 @@ start () {
   tmux split-window -h -t config './manage.sh start_redis'
   tmux split-window -v -t config './manage.sh start_test_site'
   tmux -2 attach-session -t config
+}
+
+# DEPLOY COMMANDS
+# usage: deploy_heroku <remote-branche-name>
+deploy_heroku () {
+  git subtree push --prefix crawler $1 master  
+}
+
+# deploy to crawler-toolkit-staging remote.
+deploy_staging () {
+  deploy_heroku heroku-staging
 }
 
 if [[ "$(type -t $@)" =~ .*function ]];

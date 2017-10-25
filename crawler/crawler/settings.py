@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
+class OBJ(object): pass
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -25,7 +27,10 @@ SECRET_KEY = 'bk-u9gfnok7pe*or8*q9ztambejdik=9bga29k%1_92zw04=$h'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    'localhost.dev'
+]
 
 
 # Application definition
@@ -121,10 +126,14 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Celery configuration
-CELERY_BROKER_URL = 'redis://localhost:3000'
-CELERY_RESULT_BACKEND = 'redis://localhost:3000'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
+# Twitter API configuration
+TWITTER = OBJ()
+TWITTER.ACCESS_TOKEN = os.getenv('TWITTER_ACCESS_TOKEN', '')
+TWITTER.ACCESS_SECRET = os.getenv('TWITTER_ACCESS_SECRET', '')
+TWITTER.CONSUMER_KEY = os.getenv('TWITTER_CONSUMER_KEY', '')
+TWITTER.CONSUMER_SECRET = os.getenv('TWITTER_CONSUMER_SECRET', '')

@@ -5,3 +5,4 @@
 Gemfile.lock
 test-site/.sass-cache
 .venv/
+.env

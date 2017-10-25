@@ -1,4 +1,20 @@
-# Offshore Journalism Toolkit 
+# Offshore Journalism Toolkit
+
+## Summary
+- How to install
+  - Prequisites
+  - Get the sources
+  - Install
+- Configuration
+  - Operations on the django application
+  - Operations on the jekyll application
+- How to deploy
+  - Deploying the crawling app
+  - Deploying the testing app
+- How to use
+  - Create an article with the preservation tags. 
+  - 
+
 
 
 ## How to install
@@ -86,5 +102,11 @@ If you need to perform operations on the application you have access to all djan
 ### Deploy the crawler
 The crawler itself is parametered to be deployed on heroku.
 
+### Deploy the test site
+By default we parametered the `test-site` to be deployed on [surge.sh](http://surge.sh).
+To deploy it simply run
+```sh
+./manage.sh deploy_test_site
+```
 
-### Deploy the test server to github pages
+## 
