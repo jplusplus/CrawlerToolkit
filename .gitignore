@@ -4,5 +4,7 @@
 *.swo
 Gemfile.lock
 test-site/.sass-cache
+# collected static files.
+crawler/storage/
 .venv/
 .env
