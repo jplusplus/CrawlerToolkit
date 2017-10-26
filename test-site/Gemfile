@@ -22,3 +22,6 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem "minimal-mistakes-jekyll", "~> 4.6"
+
+# Added at 2017-10-26 11:32:11 +0200 by trb:
+gem "jemoji", "~> 0.8.1"
