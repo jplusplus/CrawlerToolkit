@@ -115,7 +115,8 @@ So in order to make a new post work properly you'll need to create a post in `te
 folder (like on Jekyll) but with the `single` layout instead of the `post` that you'd expect.
 
 Also, the purpose of this site is to test the preservation meta tags (see the specs).
-To do add one or more preservation meta tag you just have to add a preservation field in the post header as follows:
+To do add one or more preservation meta tag you just have to add a `preserve` field in the post header as follows:
+
 ```md
 ---
 layout: single
