@@ -57,7 +57,10 @@ jekyll () {
 
 install_ruby_deps () {
   echo Installing ruby dependencies
-  gem install bundler
+  # If bundle command doesn't exist we install the bundler gem
+  if ! type bundle > /dev/null; then
+     gem install bundler
+  fi
   remote_bundle install
 }
 
