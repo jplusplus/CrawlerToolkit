@@ -28,6 +28,21 @@ python_shell() {
   cd -
 }
 
+# VIRTUALENV FUNCTIONS
+install_venv () {
+  pip3 install --user virtualenv
+  virtualenv -p python3 .venv
+}
+
+setup_env () {
+  if [ -f .env ]
+  then
+    echo ".env file found, sourcing it for environnement variables" 
+    source .env
+  fi;
+  source .venv/bin/activate
+}
+
 install_python_deps () {
   echo Installing python dependencies
   _pip install -r crawler/requirements.txt
@@ -64,21 +79,6 @@ install_ruby_deps () {
   remote_bundle install
 }
 
-# VIRTUALENV FUNCTIONS
-
-install_venv () {
-  pip install --user virtualenv
-  virtualenv -p python3 .venv
-}
-
-setup_env () {
-  if [ -f .env ]
-  then
-    echo ".env file found, sourcing it for environnement variables" 
-    source .env
-  fi;
-  source .venv/bin/activate
-}
 
 install () {
   install_venv
