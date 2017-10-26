@@ -45,16 +45,15 @@ setup_env () {
 
 install_python_deps () {
   echo Installing python dependencies
-  _pip install -r crawler/requirements.txt
+  pip install -r crawler/requirements.txt
 }
 
 update_requirements () {
   setup_env
-  _pip freeze > crawler/requirements.txt
+  pip freeze > crawler/requirements.txt
 }
 
-_pip () {
-  setup_env
+pip () {
   ./$VENV_BIN/pip $@
 }
 
@@ -116,7 +115,11 @@ start () {
 # DEPLOY COMMANDS
 # usage: deploy_heroku <remote-branche-name>
 deploy_heroku () {
-  git subtree push --prefix crawler $1 master  
+  git subtree push --prefix crawler/ $1 master  
+}
+
+deploy () {
+  deploy_heroku heroku
 }
 
 # deploy to crawler-toolkit-staging remote.
@@ -126,7 +129,6 @@ deploy_staging () {
 
 if [[ "$(type -t $@)" =~ .*function ]];
 then
-    echo Starting "$@"
     eval $(printf "%q " "$@")
 else
     echo "Function $@ not found, please check manage.sh file"
