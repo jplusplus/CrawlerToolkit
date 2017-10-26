@@ -1,5 +1,7 @@
 #!/bin/bash
 
+VENV_BIN=.venv/bin
+
 # Operations on django
 admin () {
   setup_env
@@ -28,19 +30,17 @@ python_shell() {
 
 install_python_deps () {
   echo Installing python dependencies
-  pip install -r crawler/requirements.txt
+  _pip install -r crawler/requirements.txt
 }
 
 update_requirements () {
   setup_env
-  pip freeze > crawler/requirements.txt
+  _pip freeze > crawler/requirements.txt
 }
 
-# force the use of pip3 (either from this own script
-# or by calling it at the exterior (./manage.sh pip ...)
-pip () {
+_pip () {
   setup_env
-  pip3 $@
+  ./$VENV_BIN/pip $@
 }
 
 remote_bundle () {
@@ -67,7 +67,7 @@ install_ruby_deps () {
 # VIRTUALENV FUNCTIONS
 
 install_venv () {
-  pip3 install --user virtualenv
+  pip install --user virtualenv
   virtualenv -p python3 .venv
 }
 
