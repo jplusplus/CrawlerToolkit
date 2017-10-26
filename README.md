@@ -2,7 +2,7 @@
 
 ## Summary
 - How to install
-  - Prequisites
+  - Prerequisites
   - Get the sources
   - Install
 - Configuration
@@ -18,10 +18,10 @@
 
 
 ## How to install
-### Prequisites
+### Prerequisites
 To install all dependencies (see [Dependencies]()) you must have the following programs installed on your computer:
 
-- python (>= 3.4)
+- python (>= 3.5)
 - ruby (>= 2.4)
 - homebrew is recommanded if you're on Mac OS X
 - rvm is also recommanded
@@ -109,4 +109,23 @@ To deploy it simply run
 ./manage.sh deploy_test_site
 ```
 
-## 
+## Adding content on the test site
+Currently, the test site is built thanks to Jekyll and the minimal-mistakes theme.
+So in order to make a new post work properly you'll need to create a post in `tests-site/_posts`
+folder (like on Jekyll) but with the `single` layout instead of the `post` that you'd expect.
+
+Also, the purpose of this site is to test the preservation meta tags (see the specs).
+To do add one or more preservation meta tag you just have to add a preservation field in the post header as follows:
+```md
+---
+layout: single
+title: "The article title"
+categories: this is a test
+preserve:
+  - type: notfound_only
+    value: true
+  - type: release_date
+    value: 2018-01-01
+  - type: priority
+    value: true
+---
