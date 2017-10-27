@@ -1,33 +1,36 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.core.validators import URLValidator
 from crawler.constants import STATES, FEED_TYPES
+from crawler.core import managers
+from polymorphic.models import PolymorphicModel
+import re
 
+valid_url = URLValidator(schemes=['http','https'])
+
+def valid_feed_url(value):
+    valid_url(value)
+    twitter_patt = re.compile('https://twitter.com/\w+$')
+    is_xml_feed = value.endswith('.xml')
+    is_twitter_account = twitter_patt.match(value)
+    if not (is_twitter_account or is_xml_feed):
+        raise ValidationError((
+            '%s is not a valid feed URL. It must either be twitter account URL'
+            '(ex: https://twitter.com/toutenrab) or an RSS feed address '
+            '(ex: http://www.lemonde.fr/rss/une.xml)'
+        ) % value)
 
 class Feed(models.Model):
+    objects = managers.FeedManager()
     active = models.BooleanField(default=True)
+    url = models.URLField(
+        validators=[valid_feed_url],
+        blank=False,
+        help_text='Enter a RSS feed url or a twitter account URL.'
+    )
     last_time_crawled = models.DateTimeField(null=True)
-    def url(self):
-        raise NotImplementedError(
-            'All descendants of Feed model must implement the url method.'
-        )
-
-    def type(self):
-        raise NotImplementedError(
-            'All descendants of Feed model must implement the type method.'
-        )
-
-class TwitterFeed(Feed):
-    account_name = models.CharField(max_length=15, blank=False)
-
-    def url(self): return self.account_name
-    def type(self): return FEED_TYPES.TWITTER
-
-class RSSFeed(Feed):
-    rss_url = models.URLField()
-    def url(self): return self.rss_url
-    def type(self): return FEED_TYPES.RSS
 
 class Article(models.Model):
     feed = models.ForeignKey('Feed')

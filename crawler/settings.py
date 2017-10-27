@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'material',
     'material.frontend',
     'material.admin',
-    'polymorphic',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -149,7 +148,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:3000'
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULE = {
     'crawl-feeds': {
-        'task': 'crawler.scraping.tasks.crawl_feeds',
+        'task': 'scraping.tasks.crawl_feeds',
         'schedule': crontab(minute='*/1')
     }
 }

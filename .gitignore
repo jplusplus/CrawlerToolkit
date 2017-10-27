@@ -8,3 +8,4 @@ test-site/.sass-cache
 crawler/storage/
 .venv/
 .env
+celerybeat-schedule

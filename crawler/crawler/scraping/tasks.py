@@ -1,14 +1,20 @@
 from datetime import datetime
+from celery.utils.log import get_task_logger
 from celery.decorators import task
-
 from crawler.constants import FEED_TYPES
+from crawler.celery import app
 # Scrapers 
-from .page import page_scrape
-from .rss import rss_scrape
-from .twitter import twitter_scrape
 
-@task(name='crawl_feeds')
-def crawl_feeds(feeds,*args, **kwargs):
+from .scrapers import twitter, rss, page_metas
+
+logger = get_task_logger(__name__)
+
+
+@task
+def crawl_feeds():
+    from crawler.core.models import Feed
+    feeds = Feed.objects.active_feeds()
+    logger.info('crawl_feeds called %s' % feeds)
     """
     Loops on the given feeds and decide which scraper to use (see
     `twitter_scrape` and `rss_scrape`).
@@ -23,22 +29,22 @@ def crawl_feeds(feeds,*args, **kwargs):
     """
     for feed in feeds:
         detected_urls = list()
-        if feed.type is FEED_TYPES.TWITTER:
-            detected_urls = twitter_scrape(feed.url)
+        if feed.type() is FEED_TYPES.TWITTER:
+            detected_urls = twitter.scrape(feed.url())
 
-        if feed.type is FEED_TYPES.RSS:
-            detected_urls = rss_scrape(feed.url)
+        if feed.type() is FEED_TYPES.RSS:
+            detected_urls = rss.scrape(feed.url())
 
-        feed['detected_urls'] = detected_urls
-        feed['last_time_crawled'] = datetime()
+        feed.last_time_crawled = datetime()
+        feed.save()
 
-   return feeds
+    return { 'success': True }
 
 
-@task(name='crawl_page_metas')
+@task
 def crawl_page_metas(url, *args, **kwargs):
     """
     This task's goal is to return the various preservation tags (if they
     are any).
     """
-    return page_meta_scraper(url)
+    return page_metas.scrape(url)
