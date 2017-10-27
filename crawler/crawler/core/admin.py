@@ -11,5 +11,6 @@ readonly_feed_fields = ('last_time_crawled', )
 class FeedAdmin(admin.ModelAdmin):
     fields = ('active', 'url')
     readomly_fields = ('last_time_crawled',)
+    icon = '<i class="material-icons">rss_feed</i>'
 
 

@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.views import generic
 
 urlpatterns = [
-    url(r'^$', generic.base.RedirectView.as_view(url='/admin/', permanent=False)),
+    url(r'^$', generic.base.RedirectView.as_view(url='/admin/login', permanent=False)),
     url(r'^admin/', admin.site.urls),
     url(r'^', include('django.contrib.auth.urls')),
+    url(r'^accounts/', generic.base.RedirectView.as_view(url='/admin'))
 ]
