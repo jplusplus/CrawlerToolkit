@@ -6,7 +6,8 @@ from crawler.constants import STATES, FEED_TYPES
 
 
 class Feed(models.Model):
-    last_time_crawled = models.DateTimeField()
+    active = models.BooleanField(default=True)
+    last_time_crawled = models.DateTimeField(null=True)
     def url(self):
         raise NotImplementedError(
             'All descendants of Feed model must implement the url method.'
