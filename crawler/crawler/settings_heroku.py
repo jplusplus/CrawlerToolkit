@@ -27,3 +27,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '')
 
 CELERY_BROKER_URL = os.getenv('REDIS_URL', '')
 CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', '')
+
+MIDDLEWARE = MIDDLEWARE + [
+    'crawler.middleware.ForceSSL
+]
