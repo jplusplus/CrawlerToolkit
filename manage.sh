@@ -8,6 +8,18 @@ admin () {
   django-admin $@
 }
 
+# Usage: _django_heroku <git remote branch> 
+_django_heroku () {
+  remote=$1
+  args=("$@")
+  args=${args[@]:1}
+  heroku run python manage.py $args --remote $remote
+}
+
+django_heroku () {
+  _django_heroku heroku $@
+}
+
 django () {
   setup_env
   ./crawler/manage.py $@
