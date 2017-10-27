@@ -1,18 +1,19 @@
 {% extends "material/frontend/base_lockscreen.html" %}
 {% load i18n material_form %}
-
+{% load static %}
 {% block extrastyle %}
-<style>
-.registration {
-  background-image: url({% static 'images/lockscreen-background.png' %});
-  background-size: cover;
-}
-</style>
 {% endblock %}
-{% block page_title %}Crawler Toolkit{% endblock %}
+{% block page_title %}Offshore Crawler{% endblock %}
 {% block title %}{% trans 'Log in' %} - {{ block.super }}{% endblock %}
 
 {% block content %}
+<style>
+.registration {
+  background-image: url({% static 'images/background.jpg' %}) !important;
+  background-size: cover;
+
+}
+</style>
 <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
   {% if 'username' in form.fields %}
     {% form %}
