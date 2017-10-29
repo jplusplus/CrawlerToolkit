@@ -23,6 +23,7 @@ def valid_feed_url(value):
 
 class Feed(models.Model):
     objects = managers.FeedManager()
+    name = models.CharField(max_length=120, blank=False, null=False)
     active = models.BooleanField(default=True)
     url = models.URLField(
         unique=True,
@@ -47,4 +48,8 @@ class Article(models.Model):
             default=STATES.CRAWL.PROGRAMMED)
 
     detected_preservation_tags = models.CharField(max_length=37,blank=True)
+
+    @property
+    def source(self):
+        return self.feed.name
 

@@ -10,8 +10,16 @@ from crawler.core.tasks_utils import active_feeds, save_feeds_urls
 
 class FeedsTestCase(TestCase):
     def setUp(self):
-        self.inactive_feed = Feed.objects.create(url='https://twitter.com/toutenrab', active=False)
-        self.active_feed = Feed.objects.create(url='https://twitter.com/nkb', active=True)
+        self.inactive_feed = Feed.objects.create(
+            name='Toutenrab account',
+            url='https://twitter.com/toutenrab',
+            active=False
+        )
+        self.active_feed = Feed.objects.create(
+            name='NKB account',
+            url='https://twitter.com/nkb',
+            active=True
+        )
 
         Article.objects.create(url='http://fakeurl.com/1/', feed=self.active_feed)
 
