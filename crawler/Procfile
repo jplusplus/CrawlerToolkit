@@ -1,2 +1,2 @@
 web: gunicorn crawler.wsgi --log-file -
-main_worker: python manage.py celery worker --beat --loglevel=info
+main_worker: celery -A crawler worker -l info -B
