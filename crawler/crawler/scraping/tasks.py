@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 from celery.utils.log import get_task_logger
 from celery.decorators import task
 from crawler.constants import FEED_TYPES
@@ -9,11 +10,13 @@ from .scrapers import twitter, rss, page_metas
 
 logger = get_task_logger(__name__)
 
+is_twitter_feed = lambda url: url.startswith('https://twitter.com/')
+is_xml_feed = lambda url: url.endswith('\.xml')
 
 @task
 def crawl_feeds():
-    from crawler.core.models import Feed
-    feeds = Feed.objects.active_feeds()
+    from crawler.core.tasks_utils import active_feeds, save_feeds_urls
+    feeds = active_feeds()
     logger.info('crawl_feeds called %s' % feeds)
     """
     Loops on the given feeds and decide which scraper to use (see
@@ -25,17 +28,26 @@ def crawl_feeds():
                 url: '' # the URL of the feed.
                 type: '' # the feed's type (twitter, rss etc.)
             }
-    Returns an array of the feeds with detected URLs.
     """
+    all_urls = list()
     for feed in feeds:
+        feed_url = feed.url
         detected_urls = list()
-        if feed.type() is FEED_TYPES.TWITTER:
-            detected_urls = twitter.scrape(feed.url())
+        if is_twitter_feed(feed_url):
+            detected_urls = twitter.scrape(feed_url)
 
-        if feed.type() is FEED_TYPES.RSS:
-            detected_urls = rss.scrape(feed.url())
+        elif is_xml_feed(feed_url):
+            detected_urls = rss.scrape(feed_url)
+        else:
+            raise ValueError((
+                'Feed located at %s wasn\'t recognised, please inform your'
+                'administrator'
+            ) % feed_url )
 
-        feed.last_time_crawled = datetime()
+        detected_urls = list(map(lambda url:[feed.pk, url], detected_urls))
+        all_urls = all_urls + detected_urls
+        save_feeds_urls(all_urls)
+        feed.last_time_crawled = datetime.now()
         feed.save()
 
     return { 'success': True }

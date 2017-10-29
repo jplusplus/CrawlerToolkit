@@ -1,7 +1,6 @@
 import json
 import requests
 from requests_oauthlib import OAuth1
-
 from django.conf import settings
 
 twitter = settings.TWITTER
@@ -11,7 +10,8 @@ auth = OAuth1(
     twitter.ACCESS_TOKEN, twitter.ACCESS_SECRET,
 )
 
-def scrape(account_name):
+def scrape(account_url):
+    account_name = account_url.replace('https://twitter.com/', '')
     # implied multiline string.
     urls = list()
     url  = (

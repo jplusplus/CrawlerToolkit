@@ -25,6 +25,7 @@ class Feed(models.Model):
     objects = managers.FeedManager()
     active = models.BooleanField(default=True)
     url = models.URLField(
+        unique=True,
         validators=[valid_feed_url],
         blank=False,
         help_text='Enter a RSS feed url or a twitter account URL.'
@@ -32,8 +33,11 @@ class Feed(models.Model):
     last_time_crawled = models.DateTimeField(null=True)
 
 class Article(models.Model):
+    objects = managers.ArticleManager()
+    created_at = models.DateTimeField(auto_now_add=True)
+    crawled_at = models.DateTimeField(null=True)
     feed = models.ForeignKey('Feed')
-    article_url = models.URLField()
+    url = models.URLField(db_index=True, unique=True, blank=False)
     archiving_state = models.CharField(max_length=12,
             choices=STATES.ARCHIVE.list(),
             blank=True)
