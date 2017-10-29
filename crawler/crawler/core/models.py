@@ -5,7 +5,6 @@ from django.db import models
 from django.core.validators import URLValidator
 from crawler.constants import STATES, FEED_TYPES
 from crawler.core import managers
-from polymorphic.models import PolymorphicModel
 import re
 
 valid_url = URLValidator(schemes=['http','https'])
