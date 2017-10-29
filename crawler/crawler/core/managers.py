@@ -6,7 +6,7 @@ class FeedManager(models.Manager):
 
 class ArticleManager(models.Manager):
     def clashing_urls(self, urls):
-        formated_urls = '"%s"' % '", "'.join(urls)
+        formated_urls = "'%s'" % "', '".join(urls)
         raw_rs = self.raw('''
             SELECT id, url FROM core_article WHERE url in (%s);
         ''' % formated_urls)
