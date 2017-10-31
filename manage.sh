@@ -1,11 +1,20 @@
 #!/bin/bash
 
 VENV_BIN=.venv/bin
+TEST_SITE_DOMAIN='offshorecrawler-rss-feed.surge.sh'
+TEST_SITE_BUILD_FOLDER='test-site-build'
 
 # Operations on django
 admin () {
   setup_env
   django-admin $@
+}
+
+_heroku() {
+  remote=$1
+  args=("$@")
+  args=${args[@]:1}
+  heroku $args --remote $remote
 }
 
 # Usage: _django_heroku <git remote branch> 
@@ -100,8 +109,6 @@ install () {
 
 # Run crawler server locally
 start_crawler () {
-  setup_env
-  migrate
   port=${1:-4000}
   django runserver $port 
 }
@@ -117,10 +124,18 @@ start_redis () {
   redis-server --port $port
 }
 
+start_celery () {
+  setup_env
+  cd crawler
+  celery -A crawler worker -l info -B -E
+  cd -
+}
+
 start () {
   tmux new-session -d -s config './manage.sh start_crawler'
-  tmux split-window -h -t config './manage.sh start_redis'
-  tmux split-window -v -t config './manage.sh start_test_site'
+  tmux split-window -v -t config './manage.sh start_redis'
+  tmux split-window -h -t config './manage.sh start_test_site'
+  tmux split-window -v -t config './manage.sh start_celery'
   tmux -2 attach-session -t config
 }
 
@@ -128,6 +143,14 @@ start () {
 # usage: deploy_heroku <remote-branche-name>
 deploy_heroku () {
   git subtree push --prefix crawler/ $1 master  
+}
+
+build_test_site() {
+  jekyll build -d ../$TEST_SITE_BUILD_FOLDER
+}
+deploy_test_site () {
+  build_test_site
+  surge --domain $TEST_SITE_DOMAIN -p $TEST_SITE_BUILD_FOLDER
 }
 
 deploy () {
