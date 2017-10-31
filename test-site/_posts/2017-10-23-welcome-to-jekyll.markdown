@@ -3,7 +3,7 @@ layout: single
 title:  "Welcome to Jekyll!"
 date:   2017-10-23 18:01:53 +0200
 categories: jekyll update
-preserve:
+preservation:
   - type: notfound_only
     value: true
   - type: release_date
