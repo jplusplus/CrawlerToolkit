@@ -25,12 +25,11 @@ STATES.ARCHIVE = States((
     ('NO_ARCHIVING', 'No archiving is needed'),
 ))
 
-STATES.PRESERVATION_TAGS = States((
-    ('PRIORITY', 'preservation:priority'),
-    ('RELEASE_DATE', 'preservation:release_date'),
-    ('NOT_FOUND_ONLY','preservation:notfound_only'),
-))
 
+PRESERVATION_TAGS = POPO()
+PRESERVATION_TAGS.PRIORITY = 'preservation:priority'
+PRESERVATION_TAGS.RELEASE_DATE = 'preservation:release_date'
+PRESERVATION_TAGS.NOT_FOUND_ONLY = 'preservation:notfound_only'
 
 FEED_TYPES = POPO()
 FEED_TYPES.TWITTER = 'TWITTER'

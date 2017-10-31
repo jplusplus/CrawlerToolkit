@@ -42,13 +42,8 @@ class Feed(models.Model):
 @receiver(post_save, sender=Feed)
 def trigger_feed_crawl(sender, instance, created=False, *args, **kwargs):
     if created:
-        from crawler.scraping.tasks import crawl_feed
-        async_result = crawl_feed.delay(feed_id=instance.pk, feed_url=instance.url)
-        tasks_utils.save_feeds_urls(
-            async_result.get()
-        )
-        instance.last_time_crawled = datetime.now()
-        instance.save()
+        from crawler.core.tasks_utils import crawl_feed
+        crawl_feed(instance)
 
 class Article(models.Model):
     objects = managers.ArticleManager()
@@ -68,6 +63,14 @@ class Article(models.Model):
     def source(self):
         return self.feed.name
 
+    @property
+    def should_preserve(self):
+        return any(
+            map(
+                lambda tag: tag.should_preserve,
+                self.preservation_tags.all()
+            )
+        )
 
 class PreservationTag(models.Model):
     article = models.ForeignKey('Article', related_name='preservation_tags')
@@ -105,9 +108,20 @@ class PreservationTag(models.Model):
 class PriorityTag(PreservationTag):
     value = models.BooleanField()
 
+    @property
+    def should_preserve(self):
+        return self.value
+
 class ReleaseDateTag(PreservationTag):
-    value = models.DateTimeField()
+    value = models.DateTimeField(null=True)
+
+    @property
+    def should_preserve(self):
+        return self.value is not None
 
 class NotFoundOnlyTag(PreservationTag):
     value = models.BooleanField()
 
+    @property
+    def should_preserve(self):
+        return self.value

@@ -148,7 +148,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:3000'
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULE = {
     'crawl-feeds': {
-        'task': 'crawler.scraping.tasks.crawl_feeds',
+        'task': 'crawler.scraping.tasks.crawl_active_feeds',
         'schedule': crontab(minute='*/10')
     }
 }
