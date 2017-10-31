@@ -3,6 +3,7 @@
 *.swp
 *.swo
 Gemfile.lock
+test-site-build/
 test-site/.sass-cache
 test-site/_site/
 # collected static files.
