@@ -1,7 +1,8 @@
 from datetime import datetime
+import re
+
 from django.db import transaction
 from crawler.constants import PRESERVATION_TAGS
-import re
 
 def active_feeds():
     from crawler.core.models import Feed
@@ -95,6 +96,4 @@ def save_articles_preservation_tags(preservation_tags):
                 raise ValueError('meta tag type %s not recognized' % ptype)
             tag = create_tag(article_id, tag_dict['value'])
             tags.append(tag)
-
-
 

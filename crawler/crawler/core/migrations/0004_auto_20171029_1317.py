@@ -26,6 +26,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='feed',
             name='url',
-            field=models.URLField(help_text='Enter a RSS feed url or a twitter account URL.', unique=True, validators=[crawler.core.models.valid_feed_url]),
+            field=models.URLField(
+                help_text='Enter a RSS feed url or a twitter account URL.',
+                unique=True,
+                validators=[crawler.core.validators.valid_feed_url]
+            ),
         ),
     ]

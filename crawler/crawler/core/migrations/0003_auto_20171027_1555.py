@@ -24,7 +24,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='feed',
             name='url',
-            field=models.URLField(default='https://twitter.com/toutenrab', help_text='Enter a RSS feed url or a twitter account URL.', validators=[crawler.core.models.valid_feed_url]),
+            field=models.URLField(default='https://twitter.com/toutenrab',
+                help_text='Enter a RSS feed url or a twitter account URL.',
+                validators=[crawler.core.validators.valid_feed_url]),
             preserve_default=False,
         ),
         migrations.DeleteModel(
