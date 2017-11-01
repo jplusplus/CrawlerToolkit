@@ -65,8 +65,18 @@ sudo apt-get install tmux
 sudo dnf install tmux 
 ``` 
 
-## How to use
+#### 3. Configure the application
+This application relies on environnement variable to run. 
 
+##### On local
+To configure the local application we use and `.env` file. To configure it copy the `.env.template` file:
+```sh
+cp .env.template .env
+```
+Then edit `.env` to fill the proper variables
+
+
+## How to use
 ### Run servers 
 
 ```sh
