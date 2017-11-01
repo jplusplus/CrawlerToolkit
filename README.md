@@ -11,10 +11,6 @@
 - How to deploy
   - Deploying the crawling app
   - Deploying the testing app
-- How to use
-  - Create an article with the preservation tags. 
-  - 
-
 
 
 ## How to install
@@ -32,6 +28,7 @@ To install all dependencies (see [Dependencies]()) you must have the following p
 git clone git@github.com:pbellon/CrawlerToolkit.git
 # Otherwise
 git clone https://github.com/pbellon/CrawlerToolkit.git
+cd CrawlerToolkit
 
 ```
 
@@ -65,19 +62,59 @@ sudo apt-get install tmux
 sudo dnf install tmux 
 ``` 
 
-#### 3. Configure the application
+## Configure the application
+### The environnement variables
 This application relies on environnement variable to run. 
+| Name | Purpose |
+|------|---------|
+|`DJANGO_SETTINGS_MODULE`| Change the settings file to use for the django app (ex `settings_dev` and `settings_heroku`)|
+|`AWS_ACCESS_KEY_ID` | Amazon Web Service acces key's id, required on heroku to serve & upload static files.|
+|`AWS_SECRET_ACCESS_KEY`| As above, required for static files serving & uploading.|
+|`AWS_STORAGE_BUCKET_NAME`|The name of the S3 storage bucket|
+|`TWITTER_ACCESS_TOKEN`'|Token to access [Twitter's API]()|
+|`TWITTER_ACCESS_SECRET`|Acces's secret for [Twitter's API]()|
+|`TWITTER_CONSUMER_KEY`||
+|`TWITTER_CONSUMER_SECRET`|Token to access [Twitter's API]()|
 
-##### On local
+#### On local
 To configure the local application we use and `.env` file. To configure it copy the `.env.template` file:
 ```sh
 cp .env.template .env
 ```
 Then edit `.env` to fill the proper variables
+#### On Heroku
+All configuration variables can be edited from the heroku dashboard or with the following command.
+```sh
+# To set a variable
+./manage.sh set <VARIABLE NAME> <value>
+# To get a variable's value
+./manage.sh get <VARIABLE NAME>
+```
 
+### Set up the external services
+This project has been configured to be managed with simple commands (see How to use). But in order certain services
+needs to be configured.
+#### Surge.sh
+You will need to install the surge npm package to deploy the test-site.
+```sh
+$ sudo npm install -g surge
+$ surge login
+```
+
+#### Heroku
+To use the heroku `manage.sh` commands you must have the heroku-cli package installed on your OS. Once this package
+is installed you must log in:
+```sh
+$ heroku login
+```
+Then add the proper `heroku` git remote with the following command
+```sh
+# <app> is the heroku application's name
+$ heroku git:remote -a <npp>
+```
 
 ## How to use
-### Run servers 
+### Run servers locally
 
 ```sh
 # 1. Start the redis server
@@ -110,14 +147,17 @@ If you need to perform operations on the application you have access to all djan
 ## Deploy
 
 ### Deploy the crawler
-The crawler itself is parametered to be deployed on heroku.
-
+The crawler itself is parametered to be deployed on heroku with the following command
+```sh
+# This helper function calls the following git command:
+# git subtree push --prefix crawl/ heroku master
+./manage.sh deploy
+```
 ### Deploy the test site
 By default we parametered the `test-site` to be deployed on [surge.sh](http://surge.sh).
-To deploy it simply run
 ```sh
-./manage.sh deploy_test_site
-```
+$ ./manage.sh deploy_test_site
+``` 
 
 ## Adding content on the test site
 Currently, the test site is built thanks to Jekyll and the minimal-mistakes theme.
@@ -125,14 +165,14 @@ So in order to make a new post work properly you'll need to create a post in `te
 folder (like on Jekyll) but with the `single` layout instead of the `post` that you'd expect.
 
 Also, the purpose of this site is to test the preservation meta tags (see the specs).
-To do add one or more preservation meta tag you just have to add a `preserve` field in the post header as follows:
+To do add one or more preservation meta tag you just have to add a `preservation` field in the post header as follows:
 
 ```md
 ---
 layout: single
 title: "The article title"
 categories: this is a test
-preserve:
+preservation:
   - type: notfound_only
     value: true
   - type: release_date

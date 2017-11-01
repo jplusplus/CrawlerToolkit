@@ -139,6 +139,17 @@ start () {
   tmux -2 attach-session -t config
 }
 
+set(){
+    _h config:set $1=$2
+}
+get(){
+    _h config:get $1
+}
+
+_h(){
+    heroku $@ --remote heroku
+}
+
 # DEPLOY COMMANDS
 # usage: deploy_heroku <remote-branche-name>
 deploy_heroku () {
