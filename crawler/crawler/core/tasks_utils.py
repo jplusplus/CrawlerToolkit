@@ -10,7 +10,7 @@ from crawler.utils import pickattr, mediaurl
 def filter_not_needed_tags(qs):
     return qs.exclude(
         article__preservation_state=STATES.PRESERVATION.NO_PRESERVE,
-        article__archiving_state__ne=STATES.ARCHIVE.ARCHIVED
+        article__archiving_state=STATES.ARCHIVE.ARCHIVED
     )
 
 def should_be_preserved(articles):
@@ -64,7 +64,7 @@ def active_feeds():
 
 def crawl_feeds(feeds):
     from crawler.scraping.tasks import crawl_feeds as _crawl
-    _crawl.delay(feed_ids=qs_to_ids(feeds))
+    _crawl.delay(feed_ids=pickattr(feeds, 'pk'))
 
 def crawl_feed(feed):
     return crawl_feeds([feed])

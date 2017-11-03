@@ -73,6 +73,7 @@ def crawl_feeds(feed_ids=None):
         qs = utils.feeds(feed_ids)
 
     articles_urls = __feeds_urls(qs)
+    qs.update(last_time_crawled=timezone.now())
     articles = utils.create_articles(articles_urls)
     # crawl created articles
     crawl_articles(qs=articles)

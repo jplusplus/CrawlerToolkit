@@ -27,11 +27,9 @@ def resource_path(instance, filename):
         )
 
     if instance.use_unique_name:
-        ext = filename.split('.')[1]
+        ext = filename.split('.')[-1]
         fid = str(uuid4())
-        print('filename:%s - ext:%s - id:%s' % (filename, ext, fid))
         filename = "{}.{}".format(fid, ext)
-        print("filename:%s"%filename)
 
     return "{path}/{fn}".format(
         path='/'.join(folders),
