@@ -3,9 +3,13 @@ class POPO(object): pass
 
 class States(object):
     def __init__(self, states, *args, **kwargs):
+        self.labels_dict = dict()
         for (name, label) in states:
+            self.labels_dict[name] = label
             setattr(self, name, name)
         self.states = states;
+
+    def label(self, state): return self.labels_dict[state]
 
     def list(self): return self.states;
 
@@ -14,15 +18,21 @@ STATES = POPO()
 
 STATES.CRAWL = States((
     ('CRAWLED', 'Crawled'),
-    ('CRAWLING','Crawling in progress'),
+    ('ERROR','There has been an error during crawling'),
     ('PROGRAMMED', 'Crawling programmed'),
 ))
 
+PRESERVATION_STATES = States((
+    ('PRESERVE', 'Should preserve this article'),
+    ('STORED', 'Has been stored in order to be archived'),
+    ('NO_PRESERVE', 'Preservation not required'),
+))
+
+STATES.PRESERVATION = PRESERVATION_STATES
 
 STATES.ARCHIVE = States((
     ('ARCHIVED', 'Archived'),
-    ('ARCHIVING', 'Archiving in progress'),
-    ('NO_ARCHIVING', 'No archiving is needed'),
+    ('ARCHIVING', 'Archiving'),
 ))
 
 
@@ -30,6 +40,13 @@ PRESERVATION_TAGS = POPO()
 PRESERVATION_TAGS.PRIORITY = 'preservation:priority'
 PRESERVATION_TAGS.RELEASE_DATE = 'preservation:release_date'
 PRESERVATION_TAGS.NOT_FOUND_ONLY = 'preservation:notfound_only'
+
+
+RESOURCE_TYPES = POPO()
+RESOURCE_TYPES.SCRIPT = 'script'
+RESOURCE_TYPES.STYLE = 'stylesheet'
+RESOURCE_TYPES.IMAGE = 'image'
+RESOURCE_TYPES.HTML = 'html'
 
 FEED_TYPES = POPO()
 FEED_TYPES.TWITTER = 'TWITTER'

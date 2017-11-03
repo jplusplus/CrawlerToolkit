@@ -1,11 +1,24 @@
 {% extends "admin/base_site.html" %}
-{% load i18n admin_static material_admin %}
+{% load i18n admin_static material_admin dashboard %}
 
 {% block breadcrumbs_items %}
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
 {% endblock %}
 
 {% block content %}
+<div class="row">
+    <div class="app-list">
+        <div class="app">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title black-text">Dashboard</span>
+                    <div class="row">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row">
     <div class="app-list">
         {% get_app_list request as app_list %}

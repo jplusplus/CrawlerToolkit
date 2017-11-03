@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from datetime import datetime
+from urllib.parse import urlparse
+import re
+
+from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.contrib.contenttypes.fields import GenericRelation,GenericForeignKey
 from django.db import models
 from crawler.constants import STATES
-from crawler.core import managers, signals, validators, inherithance
-
+from crawler.core import managers, receivers, validators, inherithance
 from crawler.core.tag_models import *
 from crawler.core.resource_models import *
+from slugger import AutoSlugField
 
 class Feed(models.Model):
     objects = managers.FeedManager()
@@ -22,21 +25,45 @@ class Feed(models.Model):
         help_text='Enter a RSS feed url or a twitter account URL.'
     )
     last_time_crawled = models.DateTimeField(null=True)
+    slug = AutoSlugField(populate_from='name')
 
+
+def slugify_article_url(url):
+    url = urlparse(url)
+    path = url.path
+    extension_pattern = re.compile('\.[\w]+$')
+    if extension_pattern.match(path):
+        path = path.split('.')[-1]
+    path = '-'.join(
+        list(filter(lambda _:len(_),path.split('/')))
+    )
+    return path
 
 class Article(models.Model):
     objects = managers.ArticleManager()
     created_at = models.DateTimeField(auto_now_add=True)
     crawled_at = models.DateTimeField(null=True)
     feed = models.ForeignKey('Feed')
+    slug = AutoSlugField(
+        populate_from='url',
+        slugify=slugify_article_url
+    )
+
     url = models.URLField(db_index=True, unique=True, blank=False)
-    archiving_state = models.CharField(max_length=12,
-            choices=STATES.ARCHIVE.list(),
+    preservation_state = models.CharField(max_length=11,
+            choices=STATES.PRESERVATION.list(),
             blank=True)
 
-    crawling_state = models.CharField(max_length=10,
-            choices=STATES.CRAWL.list(),
-            default=STATES.CRAWL.PROGRAMMED)
+    archiving_state = models.CharField(max_length=12,
+            choices=STATES.ARCHIVE.list(),
+            blank=True,
+            null=True)
+
+    def html_content(self):
+        return HTMLResource.objects.get(article_id=self.pk)
+
+    def has_html_content(self):
+        return HTMLResource.objects.filter(article_id=self.pk).count() > 0;
 
     @property
     def source(self):
@@ -51,4 +78,4 @@ class Article(models.Model):
             )
         )
 
-signals.init()
+receivers.init()

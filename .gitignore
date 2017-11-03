@@ -1,13 +1,16 @@
 *.sqlite3
 *.pyc
 *.swp
+*.swn
 *.swo
+dump.rdb
 Gemfile.lock
 test-site-build/
 test-site/.sass-cache
 test-site/_site/
 # collected static files.
-crawler/storage/
+crawler/media/
+crawler/static/
 .venv/
 .env
 celerybeat-schedule

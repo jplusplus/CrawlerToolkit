@@ -3,11 +3,15 @@ import dj_database_url
 
 db_from_env = dj_database_url.config(conn_max_age=500)
 
+DEBUG = False
+
 INSTALLED_APPS = INSTALLED_APPS + ['storages',]
 
 ALLOWED_HOSTS = [
     'offshore-crawler.herokuapp.com',
 ]
+
+DOMAIN_NAME = 'https://%s' % ALLOWED_HOSTS[0]
 
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID', '')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY', '')
@@ -16,10 +20,14 @@ AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
-AWS_LOCATION = 'static'
 
-STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_LOCATION = 'static'
+STATICFILES_STORAGE = 'crawler.storages.StaticStorage'
+STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
+
+MEDIAFILES_LOCATION = 'archive'
+DEFAULT_FILE_STORAGE = 'crawler.storages.MediaStorage'
+MEDIA_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
 
 DATABASES['default'].update(db_from_env)
 

@@ -16,14 +16,19 @@ class FeedAdmin(admin.ModelAdmin):
     actions = [ force_crawl_feeds, ]
     fields = ('active', 'url', 'name')
     list_display = ('name', 'url', 'last_time_crawled')
-    readomly_fields = ('last_time_crawled',)
+    readonly_fields = ('last_time_crawled',)
     icon = _icon('rss_feed')
 
 
+def force_crawl_articles(modeladmin, request, queryset):
+    from crawler.core.tasks_utils import crawl_articles
+    crawl_articles(queryset)
+
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('source','url', 'created_at', 'should_preserve')
+    list_display = ('source', 'url', 'created_at', 'should_preserve')
     icon = _icon('description')
+    actions = [ force_crawl_articles, ]
 
 
 # Unregister unused models.

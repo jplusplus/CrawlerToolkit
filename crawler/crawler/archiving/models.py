@@ -1,3 +1,5 @@
 from django.db import models
 
-# Create your models here.
+class ArchivedArticle(models.Model):
+    article = models.ForeignKey('core.Article')
+    url = models.URLField(blank=False,null=False)

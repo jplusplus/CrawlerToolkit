@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'crawler.core',
     'crawler.scraping',
     'crawler.archiving',
+    'crawler.dashboard',
 ]
 
 MIDDLEWARE = [
@@ -138,6 +139,8 @@ STATICFILES_DIRS = (
     (os.path.join(BASE_DIR, 'crawler', 'static')),
 )
 
+MEDIA_URL = '/archive/'
+
 # Celery configuration
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -148,8 +151,12 @@ CELERY_RESULT_BACKEND = 'redis://localhost:3000'
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULE = {
     'crawl-feeds': {
-        'task': 'crawler.scraping.tasks.crawl_active_feeds',
+        'task': 'crawler.scraping.tasks.crawl_feeds',
         'schedule': crontab(minute='*/10')
+    },
+    'archive-articles': {
+        'task': 'crawler.archiving.tasks.check_articles_to_archive',
+        'schedule': crontab(minute='*/60')
     }
 }
 
