@@ -1,6 +1,8 @@
 from datetime import datetime
 import re
 
+from celery.utils.log import get_task_logger
+
 from django.db import transaction
 from django.utils import timezone
 from django.core.files.base import ContentFile
@@ -8,6 +10,8 @@ from crawler.constants import PRESERVATION_TAGS, STATES
 from crawler.utils import pickattr, mediaurl
 
 TXT_RESOURCES_PATTERN = re.compile('.+\.(html|js|css)$')
+
+logger = get_task_logger(__name__)
 
 def filter_not_needed_tags(qs):
     return qs.exclude(
@@ -178,7 +182,7 @@ def save_preservation_tags(preservation_tags):
             tags.append(tag)
     return tags
 
-def as_hosted_html(html, resources):
+def as_hosted_content(content, resources):
     def multiple_replace(txt, _dict):
         rx = re.compile('|'.join(map(re.escape, _dict)))
         def one_xlat(match):
@@ -188,9 +192,10 @@ def as_hosted_html(html, resources):
     mapped_urls = {
         resource.url: mediaurl(resource.resource_file.url) for resource in resources
     }
-    return multiple_replace(html.decode(), mapped_urls)
+    return multiple_replace(content, mapped_urls)
 
-def create_or_update_resources(article, resources_dict):
+def create_or_update_resources(article, resources_dict, css_resources):
+    from crawler.core.resource_models import StyleResource
     def get_resource_model(resource_type):
         from crawler.core.resource_models import RESOURCE_TYPES_MAP
         model = RESOURCE_TYPES_MAP.get(resource_type)
@@ -199,26 +204,50 @@ def create_or_update_resources(article, resources_dict):
                  '%s is not a recognized resource type' % resource_type
             )
         return model
+    article_resources = list()
 
-    for ressource_type, resources in resources_dict.items():
-        ResourceModel = get_resource_model(ressource_type)
-        for resource_dict in resources:
-            resource = ResourceModel(
-                url=resource_dict['url'],
-                article=article,
-            )
-            fn = resource_dict['filename']
-            content = resource_dict['content']
-            if TXT_RESOURCES_PATTERN.match(fn):
-                content = content.decode()
+    with transaction.atomic():
+        for ressource_type, resources in resources_dict.items():
+            ResourceModel = get_resource_model(ressource_type)
+            for resource_dict in resources:
+                resource = ResourceModel.objects.create(
+                    url=resource_dict['url'],
+                    article=article,
+                )
+                fn = resource_dict['filename']
+                content = resource_dict['content']
+                if TXT_RESOURCES_PATTERN.match(fn):
+                    content = content.decode()
 
-            resource.set_content(fn, content)
+                if isinstance(resource, StyleResource):
+                    mapped_urls = {}
+                    sub_resources_dict = css_resources[resource.url]
+                    sub_resources_list = list()
+                    for subr_type, sub_resources in sub_resources_dict.items():
+                        SubResourceModel = get_resource_model(subr_type)
+                        for sr_dict in sub_resources:
+                            sub_resource = SubResourceModel.objects.create(
+                                url=sr_dict['url'],
+                                article=article,
+                            )
+                            sub_resource.set_content(sr_dict['filename'], sr_dict['content'])
+                            sub_resources_list.append(sub_resource)
 
-def save_resources(article, html_content, resources_dict):
+                    content = as_hosted_content(content, sub_resources_list)
+                    logger.info(
+                        'Success to parse CSS & convert URL %s' % content
+                    )
+
+                from celery.contrib import rdb
+                rdb.set_trace()
+                resource.set_content(fn, content)
+                article_resources.append(resource)
+    return article_resources
+
+def save_resources(article, html_content, resources_dict, css_resources):
     from crawler.core.models import HTMLResource
-    create_or_update_resources(article, resources_dict)
-    resources = article.resources.all()
-    hosted_html = as_hosted_html(html_content, resources)
+    resources = create_or_update_resources(article, resources_dict, css_resources)
+    hosted_html = as_hosted_content(html_content.decode(), resources)
 
     if article.has_html_content():
         article.html_content().set_content('index.html', hosted_html)

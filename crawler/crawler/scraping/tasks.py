@@ -100,13 +100,15 @@ def crawl_preservation_tags(articles, *args, **kwargs):
 def scrape_article_resources(url):
     scraper = HTMLScraper(url)
     html_content = scraper.html_content()
-    resources = scraper.static_resources()
-    return [ html_content, resources ]
+    html_resources = scraper.static_resources()
+    css_resources = scraper.css_resources()
+    logger.info("sraped article")
+    return [ html_content, html_resources, css_resources ]
 
 def crawl_article_resources(article):
     from crawler.core import tasks_utils as utils
-    [ html_content, resources ] = scrape_article_resources(article.url)
-    utils.save_resources(article, html_content, resources)
+    [ html_content, resources, css_resources ] = scrape_article_resources(article.url)
+    utils.save_resources(article, html_content, resources, css_resources)
 
 @task
 def crawl_resources(articles):

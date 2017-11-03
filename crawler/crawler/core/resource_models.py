@@ -44,7 +44,7 @@ class Resource(inherithance.ParentModel):
     use_unique_name = models.BooleanField(default=True)
     resource_file = models.FileField(upload_to=resource_path,)
     article = models.ForeignKey('Article', related_name='resources')
-    url = models.URLField(blank=False, null=False)
+    url = models.URLField(blank=False, null=False, db_index=True)
 
     def set_content(self, filename, content):
         self.resource_file.save(filename, ContentFile(content))
@@ -61,13 +61,18 @@ class ScriptResource(Resource):
     class Meta:
         resource_type = RESOURCE_TYPES.SCRIPT
 
-class StyeResource(Resource):
+class StyleResource(Resource):
     class Meta:
         resource_type = RESOURCE_TYPES.STYLE
 
+class FontResource(Resource):
+    class Meta:
+        resource_type = RESOURCE_TYPES.FONT
+
 RESOURCE_TYPES_MAP = {
     RESOURCE_TYPES.SCRIPT:ScriptResource,
-    RESOURCE_TYPES.STYLE:StyeResource,
+    RESOURCE_TYPES.STYLE:StyleResource,
     RESOURCE_TYPES.IMAGE:ImageResource,
     RESOURCE_TYPES.HTML:HTMLResource,
+    RESOURCE_TYPES.FONT:FontResource,
 }
