@@ -10,10 +10,8 @@ def absurl(path):
     )
 
 def mediaurl(path):
-    base_url = settings.MEDIA_URL
-    if not base_url.startswith('http'):
-        base_url = '{domain}{path}'.format(
-            domain=settings.DOMAIN_NAME,
-            path=base_url
-        )
+    s3_domain = getattr(settings, 'AWS_S3_CUSTOM_DOMAIN')
+    base_url = settings.DOMAIN_NAME
+    if s3_domain != '':
+        base_url = 'https://{domain}'.format(domain=s3_domain)
     return '{domain}{path}'.format(domain=base_url, path=path)

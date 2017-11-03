@@ -3,11 +3,13 @@ from __future__ import unicode_literals
 from urllib.parse import urlparse
 import re
 
+from django.urls import reverse
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.contrib.contenttypes.fields import GenericRelation,GenericForeignKey
 from django.db import models
+from crawler import utils
 from crawler.constants import STATES
 from crawler.core import managers, receivers, validators, inherithance
 from crawler.core.tag_models import *
@@ -65,6 +67,13 @@ class Article(models.Model):
     def has_html_content(self):
         return HTMLResource.objects.filter(article_id=self.pk).count() > 0;
 
+    def serve_url(self):
+        kwargs = {
+            'feed_slug': self.feed.slug,
+            'article_slug': self.slug,
+        }
+        path = reverse('store:serve_article', kwargs=kwargs)
+        return utils.absurl(path)
     @property
     def source(self):
         return self.feed.name

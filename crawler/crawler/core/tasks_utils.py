@@ -7,6 +7,8 @@ from django.core.files.base import ContentFile
 from crawler.constants import PRESERVATION_TAGS, STATES
 from crawler.utils import pickattr, mediaurl
 
+TXT_RESOURCES_PATTERN = re.compile('.+\.(html|js|css)$')
+
 def filter_not_needed_tags(qs):
     return qs.exclude(
         article__preservation_state=STATES.PRESERVATION.NO_PRESERVE,
@@ -35,18 +37,20 @@ def should_be_archived(articles):
 def priority_articles():
     from crawler.core.models import PriorityTag
     tags = PriorityTag.objects.filter(value=True)
+    tags = filter_not_needed_tags(tags)
+    return pickattr(tags, 'article')
 
 def notfound_only_articles():
     from crawler.core.models import NotFoundOnlyTag
     tags = NotFoundOnlyTag.objects.filter(value=True)
     tags = filter_not_needed_tags(tags)
-    return utils.pickattr(tags, 'article')
+    return pickattr(tags, 'article')
 
 def release_date_articles():
     from crawler.core.models import ReleaseDateTag
     tags = ReleaseDateTag.objects.filter(value__lte=timezone.now())
     tags = filter_not_needed_tags(tags)
-    return utils.pickattr(tags, 'article')
+    return pickattr(tags, 'article')
 
 def filter_by_id(Model,ids):return Model.objects.filter(pk__in=ids)
 
@@ -184,7 +188,7 @@ def as_hosted_html(html, resources):
     mapped_urls = {
         resource.url: mediaurl(resource.resource_file.url) for resource in resources
     }
-    return multiple_replace(str(html), mapped_urls)
+    return multiple_replace(html.decode(), mapped_urls)
 
 def create_or_update_resources(article, resources_dict):
     def get_resource_model(resource_type):
@@ -203,7 +207,12 @@ def create_or_update_resources(article, resources_dict):
                 url=resource_dict['url'],
                 article=article,
             )
-            resource.set_content(resource_dict['filename'], resource_dict['content'])
+            fn = resource_dict['filename']
+            content = resource_dict['content']
+            if TXT_RESOURCES_PATTERN.match(fn):
+                content = content.decode()
+
+            resource.set_content(fn, content)
 
 def save_resources(article, html_content, resources_dict):
     from crawler.core.models import HTMLResource

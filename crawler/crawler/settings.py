@@ -141,6 +141,9 @@ STATICFILES_DIRS = (
 
 MEDIA_URL = '/archive/'
 
+# Let this variable here
+AWS_S3_CUSTOM_DOMAIN = ''
+
 # Celery configuration
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'

@@ -2,8 +2,10 @@ from crawler.core import inherithance
 from crawler.constants import RESOURCE_TYPES
 from django.db import models
 from django.core.files.base import ContentFile
-
 from uuid import uuid4
+
+import re
+TXT_RESOURCES_PATTERN = re.compile('.+\.(html|js|css)$')
 
 RESOURCE_META_FIELDS = (
     'resource_type',
