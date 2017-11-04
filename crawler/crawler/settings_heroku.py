@@ -20,7 +20,6 @@ AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',
 }
-AWS_S3_SECURE_URLS = False
 
 STATICFILES_LOCATION = 'static'
 STATICFILES_STORAGE = 'crawler.storages.StaticStorage'
