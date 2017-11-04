@@ -234,9 +234,6 @@ def create_or_update_resources(article, resources_dict, css_resources):
                             sub_resources_list.append(sub_resource)
 
                     content = as_hosted_content(content, sub_resources_list)
-                    logger.info(
-                        'Success to parse CSS & convert URL %s' % content
-                    )
 
                 resource.set_content(fn, content)
                 article_resources.append(resource)

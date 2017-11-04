@@ -102,7 +102,7 @@ def scrape_article_resources(url):
     html_content = scraper.html_content()
     html_resources = scraper.static_resources()
     css_resources = scraper.css_resources()
-    logger.info("sraped article")
+    # logger.info("sraped article")
     return [ html_content, html_resources, css_resources ]
 
 def crawl_article_resources(article):
