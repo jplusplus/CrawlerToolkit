@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from crawler.archiving.models import ArchivedArticle
+
+class InlineArchivedArticle(admin.TabularInline):
+    model = ArchivedArticle

@@ -238,8 +238,6 @@ def create_or_update_resources(article, resources_dict, css_resources):
                         'Success to parse CSS & convert URL %s' % content
                     )
 
-                from celery.contrib import rdb
-                rdb.set_trace()
                 resource.set_content(fn, content)
                 article_resources.append(resource)
     return article_resources

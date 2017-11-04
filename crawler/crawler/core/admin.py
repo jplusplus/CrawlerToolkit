@@ -3,7 +3,10 @@ from __future__ import unicode_literals
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from material.frontend.models import Module
+from crawler import utils
 from crawler.core.models import Feed, Article
+from crawler.core.tag_models import *
+from crawler.archiving.admin import InlineArchivedArticle
 
 def force_crawl_feeds(modeladmin, request, queryset):
     from crawler.core.tasks_utils import crawl_feeds
@@ -24,11 +27,49 @@ def force_crawl_articles(modeladmin, request, queryset):
     from crawler.core.tasks_utils import crawl_articles
     crawl_articles(queryset)
 
+class PreservationTypeFilter(admin.SimpleListFilter):
+    title = 'Preservation tags detected'
+    parameter_name = 'preservation_tags'
+    def preservation_tag_model(self, tag_type):
+        model = PRESERVATION_TAGS_MAP.get()
+        if not model:
+            raise ValueError('Tag type not recognized')
+    def lookups(self, request, model_admin):
+        keywords = (
+            (PRESERVATION_TAGS.PRIORITY, 'priority'),
+            (PRESERVATION_TAGS.RELEASE_DATE, 'release_date'),
+            (PRESERVATION_TAGS.NOT_FOUND_ONLY,'notfound_only')
+        )
+        return keywords
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value:
+            PreservationModel = preservation_tag_model(value)
+            tag_qs = PreservationModel.objects.filter(article__in=queryset)
+            queryset = queryset.filter(preservation_tags__in=tag_qs)
+
+        return queryset
+
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('source', 'url', 'created_at', 'should_preserve')
+    list_display = (
+        'source',
+        'url',
+        'created_at',
+        'should_preserve',
+        'preservation_state',
+        'archiving_state',
+    )
+    list_filter = (
+        'feed',
+        PreservationTypeFilter,
+        'preservation_state',
+        'archiving_state',
+    )
     icon = _icon('description')
     actions = [ force_crawl_articles, ]
+    inlines = [ InlineArchivedArticle, ]
 
 
 # Unregister unused models.

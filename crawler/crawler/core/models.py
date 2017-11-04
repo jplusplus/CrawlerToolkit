@@ -29,6 +29,10 @@ class Feed(models.Model):
     last_time_crawled = models.DateTimeField(null=True)
     slug = AutoSlugField(populate_from='name')
 
+    def __unicode__(self):
+        return self.name
+    def __str__(self):
+        return self.name
 
 def slugify_article_url(url):
     url = urlparse(url)
