@@ -11,7 +11,6 @@ class Service:
     def start(self): pass
 
 class ArchiveORG(Service):
-    name = 'archive-org'
     def start(self):
         service_url = "{service}{url}".format(
             service='https://web.archive.org/save/',
@@ -27,11 +26,9 @@ class ArchiveORG(Service):
                 domain=parsed.hostname,
                 place=content_location
             )
-
-    return archived_url
+        return archived_url
 
 class ArchiveIS(Service):
-    name = 'archive-is'
     def start(self):
         return archiveis.capture(self._url)
 
