@@ -20,8 +20,8 @@ def archive_article(article):
             'article_slug':article.slug
         })
         article_url = utils.absurl(article_path)
-        for start in archive.services(article_url):
-            archived_url = start()
+        for service in archive.services(article_url):
+            archived_url = service.start()
             ArchivedArticle.objects.create(
                 url=archived_url,
                 article=article)
@@ -32,6 +32,7 @@ def archive_article(article):
         logger.error("An error occured when archiving article", e)
         logger.info("Article path: %s" % article_path)
         logger.info("Article absolute url: %s" % article_url)
+        logger.info("Archived url (%s): %s" %  (service.name(), archived_url)
 
     article.save()
 
