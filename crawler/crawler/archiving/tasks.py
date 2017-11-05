@@ -22,7 +22,7 @@ def archive_article(article):
         article_url = utils.absurl(article_path)
         for start in archive.services(article_url):
             archived_url = start()
-            ArchivedArticle.object.create(
+            ArchivedArticle.objects.create(
                 url=archived_url,
                 article=article)
 
