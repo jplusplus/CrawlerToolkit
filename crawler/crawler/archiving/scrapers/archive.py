@@ -3,8 +3,8 @@ import requests
 
 from urllib.parse import urlparse
 
-class Service:
-    def __init__(url):
+class Service(object):
+    def __init__(self, url):
         self._url = url
 
     def name(self): return self.__class__.__name__
