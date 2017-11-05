@@ -55,6 +55,7 @@ class PreservationTypeFilter(admin.SimpleListFilter):
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
     list_display = (
+        'id',
         'source',
         'url',
         'created_at',
