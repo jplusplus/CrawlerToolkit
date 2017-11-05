@@ -7,6 +7,7 @@ from crawler import utils
 from crawler.core.models import Feed, Article
 from crawler.core.tag_models import *
 from crawler.archiving.admin import InlineArchivedArticle
+from urllib.parse import urlparse
 
 def force_crawl_feeds(modeladmin, request, queryset):
     from crawler.core.tasks_utils import crawl_feeds
@@ -60,6 +61,7 @@ class ArticleAdmin(admin.ModelAdmin):
         'should_preserve',
         'preservation_state',
         'archiving_state',
+        'archived_urls'
     )
     list_filter = (
         'feed',
@@ -67,12 +69,26 @@ class ArticleAdmin(admin.ModelAdmin):
         'preservation_state',
         'archiving_state',
     )
-
     readonly_fields = ('serve_url', 'url', 'feed', 'crawled_at', 'slug')
     icon = _icon('description')
     actions = [ force_crawl_articles, ]
     inlines = [ InlineArchivedArticle, ]
 
+    def archived_urls(self, obj):
+        def archived_url_to_elem(archived):
+            host = urlparse(archived.url).hostname
+            return (
+                "<div class='chip'>"
+                    "<a href='{url}' target='_blank'>"
+                        "<i class='close material-icons'>link</i>{host}"
+                    "</a>"
+                "</div>"
+            ).format(host=host, url=archived.url)
+
+        urls_elems = map(archived_url_to_elem, obj.archived_urls.all())
+        return '&nbsp;'.join(urls_elems)
+
+    archived_urls.allow_tags = True
 
 # Unregister unused models.
 admin.site.unregister(Group)
