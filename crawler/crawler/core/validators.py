@@ -1,10 +1,12 @@
 from django.core.validators import URLValidator
+import re
+
+twitter_patt = re.compile('https://twitter.com/\w+$')
 
 valid_url = URLValidator(schemes=['http','https'])
 
 def valid_feed_url(value):
     valid_url(value)
-    twitter_patt = re.compile('https://twitter.com/\w+$')
     is_xml_feed = value.endswith('.xml')
     is_twitter_account = twitter_patt.match(value)
     if not (is_twitter_account or is_xml_feed):
