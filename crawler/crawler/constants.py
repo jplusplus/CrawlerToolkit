@@ -33,6 +33,7 @@ STATES.PRESERVATION = PRESERVATION_STATES
 STATES.ARCHIVE = States((
     ('ARCHIVED', 'Archived'),
     ('ARCHIVING', 'Archiving'),
+    ('ERROR', 'An error occured'),
 ))
 
 
