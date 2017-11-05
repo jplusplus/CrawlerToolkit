@@ -14,6 +14,7 @@ def archive_article(article):
     from crawler.constants import STATES
     article.archiving_state=STATES.ARCHIVE.ARCHIVING
     article.save()
+    service_name = ''
     try:
         article_path = reverse('store:serve_article', kwargs={
             'feed_slug':article.feed.slug,
@@ -21,6 +22,7 @@ def archive_article(article):
         })
         article_url = utils.absurl(article_path)
         for service in archive.services(article_url):
+            service_name = service.name()
             archived_url = service.start()
             ArchivedArticle.objects.create(
                 url=archived_url,
@@ -32,7 +34,7 @@ def archive_article(article):
         logger.error("An error occured when archiving article", e)
         logger.info("Article path: %s" % article_path)
         logger.info("Article absolute url: %s" % article_url)
-        logger.info("Archived url (%s): %s" %  (service.name(), archived_url))
+        logger.info("Archived url (%s): %s" %  (service_name, archived_url))
 
     article.save()
 
