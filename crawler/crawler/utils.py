@@ -19,7 +19,7 @@ def mediaurl(path):
     parsed_path = urlparse(path)
     url = '{domain}{path}'.format(domain=base_url, path=path)
 
-    if len(parsed.query) > 0:
-        url = "{url}?{query}".format(url=url, query=parsed.query)
+    if len(parsed_path.query) > 0:
+        url = "{url}?{query}".format(url=url, query=parsed_path.query)
 
     return url
