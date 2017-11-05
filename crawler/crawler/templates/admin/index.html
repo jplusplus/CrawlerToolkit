@@ -4,7 +4,29 @@
 {% block breadcrumbs_items %}
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
 {% endblock %}
+{% block extrastyle %}
+<style>
 
+.app .collection .collection-item {
+  min-height: 52px;
+}
+
+.app .collection .collection-item span.title {
+  position: absolute;
+  top: 16px;
+  bottom: 16px;
+}
+.app .collection .collection-item.avatar .circle {
+  height: 32px;
+  width: 32px;
+}
+
+.app .collection .collection-item.avatar i.circle {
+  line-height: 32px;
+}
+
+</style>
+{% endblock %}
 {% block content %}
 <div class="row">
   <div class="app-list">
