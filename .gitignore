@@ -2,6 +2,7 @@
 *.pyc
 *.swp
 *.swn
+*.swm
 *.swo
 dump.rdb
 Gemfile.lock

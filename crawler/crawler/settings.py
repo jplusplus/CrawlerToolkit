@@ -36,6 +36,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'material.theme.deeporange',
     'material',
     'material.frontend',
     'material.admin',
