@@ -2,8 +2,10 @@
 from __future__ import unicode_literals
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.urls import reverse
 from material.frontend.models import Module
 from crawler import utils
+from crawler.constants import STATES
 from crawler.core.models import Feed, Article
 from crawler.core.tag_models import *
 from crawler.archiving.admin import InlineArchivedArticle
@@ -57,8 +59,9 @@ class ArticleAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'source',
-        'url',
+        'original_url',
         'created_at',
+        'preview_url',
         'should_preserve',
         'preservation_state',
         'archiving_state',
@@ -75,6 +78,31 @@ class ArticleAdmin(admin.ModelAdmin):
     actions = [ force_crawl_articles, ]
     inlines = [ InlineArchivedArticle, ]
 
+    def original_url(self, obj):
+        return '<a href="{href}" target="_blank">visit the article</a>'.format(
+            href=obj.url
+        )
+    original_url.short_description = 'Orignal article'
+    original_url.allow_tags = True
+    def preview_url(self, obj):
+        if obj.preservation_state == STATES.PRESERVATION.STORED:
+            preview_url = reverse('store:preview_article', kwargs={
+                    'feed_slug':obj.feed.slug,
+                    'article_slug':obj.slug,
+                })
+            return (
+                '<a href="{href}" target="_blank" '
+                    'class="btn wave-effects  waves-light">'
+                    '<i class="material-icons left">remove_red_eye</i>preview'
+                '</a>'
+            ).format(
+                href=preview_url,
+            )
+        else:
+            return ''
+
+    preview_url.short_description = 'Preview the stored article'
+    preview_url.allow_tags = True
     def archived_urls(self, obj):
         def archived_url_to_elem(archived):
             host = urlparse(archived.url).hostname
