@@ -30,6 +30,36 @@ def force_crawl_articles(modeladmin, request, queryset):
     from crawler.core.tasks_utils import crawl_articles
     crawl_articles(queryset)
 
+class ShouldPreserveFilter(admin.SimpleListFilter):
+    title = 'need of preservation'
+    parameter_name = 'should_preserve'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('0', 'No'),
+            ('1', 'Yes'),
+        )
+    def choices(self, cl):
+        for lookup, title in self.lookup_choices:
+            yield {
+                'selected': self.value() == lookup,
+                'query_string': cl.get_query_string({
+                    self.parameter_name: lookup,
+                }, []),
+                'display': title,
+            }
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == '1':
+            states = (
+                STATES.PRESERVATION.PRESERVE,
+                STATES.PRESERVATION.STORED,
+            )
+            queryset = queryset.filter(
+                preservation_state__in=states
+            )
+        return queryset
+
 class PreservationTypeFilter(admin.SimpleListFilter):
     title = 'Preservation tags detected'
     parameter_name = 'preservation_tags'
@@ -69,6 +99,7 @@ class ArticleAdmin(admin.ModelAdmin):
     )
     list_filter = (
         'feed',
+        ShouldPreserveFilter,
         PreservationTypeFilter,
         'preservation_state',
         'archiving_state',
