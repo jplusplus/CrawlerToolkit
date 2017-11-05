@@ -106,8 +106,8 @@ class ArticleAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('serve_url', 'url', 'feed', 'crawled_at', 'slug')
     icon = _icon('description')
-    actions = [ force_crawl_articles, ]
     inlines = [ InlineArchivedArticle, ]
+    # actions = [ force_crawl_articles, ]
 
     def original_url(self, obj):
         return '<a href="{href}" target="_blank">visit the article</a>'.format(
