@@ -47,7 +47,7 @@ class Resource(inherithance.ParentModel):
     url = models.URLField(blank=False, null=False, db_index=True)
 
     def set_content(self, filename, content):
-        self.resource_file.save(filename, ContentFile(content), save=False)
+        self.resource_file.save(filename, ContentFile(content))
 
 class HTMLResource(Resource):
     class Meta:
