@@ -6,6 +6,9 @@
 {% endblock %}
 {% block extrastyle %}
 <style>
+.app.dashboard .collection {
+  margin-top: 0;
+}
 
 .app .collection .collection-item {
   min-height: 52px;
@@ -30,9 +33,9 @@
 {% block content %}
 <div class="row">
   <div class="app-list">
-    <div class="app">
+    <div class="app dashboard">
       {% get_dashboard_rows request as rows %}
-      <ul class="collection">
+      <ul class="collection z-depth-1">
         <li class="collection-item"><h4>Dashboard</h4></li>
         {% for row in rows %}
         <li class="collection-item avatar">
