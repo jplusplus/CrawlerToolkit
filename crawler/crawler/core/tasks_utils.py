@@ -193,7 +193,7 @@ def as_hosted_content(content, resources):
         resource.url: mediaurl(resource.resource_file.url) for resource in resources
     }
     content = multiple_replace(content, mapped_urls)
-    return content.encode('utf-8')
+    return bytes(content, 'utf-8')
 
 def create_or_update_resources(article, resources_dict, css_resources):
     from crawler.core.resource_models import StyleResource
@@ -217,10 +217,8 @@ def create_or_update_resources(article, resources_dict, css_resources):
                 )
                 fn = resource_dict['filename']
                 content = resource_dict['content']
-                if TXT_RESOURCES_PATTERN.match(fn):
-                    content = content.decode()
-
                 if isinstance(resource, StyleResource):
+                    content = content.decode()
                     mapped_urls = {}
                     sub_resources_dict = css_resources[resource.url]
                     sub_resources_list = list()
@@ -235,6 +233,7 @@ def create_or_update_resources(article, resources_dict, css_resources):
                             sub_resources_list.append(sub_resource)
 
                     content = as_hosted_content(content, sub_resources_list)
+
                 resource.set_content(fn, content)
                 article_resources.append(resource)
     return article_resources
@@ -243,6 +242,7 @@ def save_resources(article, html_content, resources_dict, css_resources):
     from crawler.core.models import HTMLResource
     resources = create_or_update_resources(article, resources_dict, css_resources)
     hosted_html = as_hosted_content(html_content.decode(), resources)
+
     if article.has_html_content():
         article.html_content().set_content('index.html', hosted_html)
     else:
