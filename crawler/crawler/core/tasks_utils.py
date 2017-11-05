@@ -24,19 +24,22 @@ def should_be_preserved(articles):
 
 def should_be_archived(articles):
     from crawler.core.models import ReleaseDateTag, PriorityTag, Article
-    article_ids = pickattr(articles, 'pk')
     rids = pickattr(
         ReleaseDateTag.objects.filter(
-            article_id__in=article_ids,
+            article__in=articles,
             value__lte=timezone.now()
         ), 'article_id')
     pids = pickattr(
         PriorityTag.objects.filter(
-            article_id__in=article_ids,
+            article__in=articles,
             value=True
         ), 'article_id')
     ids = list(set(rids + pids))
-    return Article.objects.filter(pk__in=ids)
+    return Article.objects.filter(
+            pk__in=ids
+        ).exclude(
+            archiving_state=STATES.ARCHIVE.ARCHIVED
+        )
 
 def priority_articles():
     from crawler.core.models import PriorityTag
