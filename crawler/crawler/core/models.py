@@ -71,6 +71,7 @@ class Article(models.Model):
     def has_html_content(self):
         return HTMLResource.objects.filter(article_id=self.pk).count() > 0;
 
+    @property
     def serve_url(self):
         kwargs = {
             'feed_slug': self.feed.slug,

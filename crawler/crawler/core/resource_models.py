@@ -48,6 +48,7 @@ class Resource(inherithance.ParentModel):
 
     def set_content(self, filename, content):
         self.resource_file.save(filename, ContentFile(content))
+        self.save()
 
 class HTMLResource(Resource):
     class Meta:

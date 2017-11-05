@@ -9,7 +9,6 @@ def serve_article(request, feed_slug, article_slug):
     article = Article.objects.get(feed=feed, slug=article_slug)
     if article and article.archiving_state == ARCHIVING:
         html_resource = HTMLResource.objects.get(article=article.pk)
-        import ipdb; ipdb.set_trace()
         html = html_resource.resource_file.read()
         html_string = html.decode()
         if html_string.startswith('b\''):

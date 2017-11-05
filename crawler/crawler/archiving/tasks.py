@@ -15,6 +15,7 @@ def archive_article(article):
     article.archiving_state=STATES.ARCHIVE.ARCHIVING
     article.save()
     service_name = ''
+    archived_url = ''
     try:
         article_path = reverse('store:serve_article', kwargs={
             'feed_slug':article.feed.slug,
