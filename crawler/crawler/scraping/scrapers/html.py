@@ -18,7 +18,9 @@ def crawl_resource(url):
 class HTMLScraper(object):
     def __init__(self, url):
         self._url = url
-        self._tree = etree.parse(url, parser=etree.HTMLParser())
+        content = requests.get(url).content
+        self._html_content = content
+        self._tree = etree.fromstring(content, parser=etree.HTMLParser())
         self._stylesheet_urls = self._tree.xpath('//link[@rel="stylesheet"]/@href')
         self._script_urls =  self._tree.xpath('//script/@src')
         self._image_urls =  self._tree.xpath('//img/@src')
@@ -69,7 +71,7 @@ class HTMLScraper(object):
             self._css_resources[resource['url']] = sub_resources
 
     def html_content(self, pretty_print=False):
-        return etree.tostring(self._tree, pretty_print=pretty_print)
+        return self._html_content
 
     def static_resources(self):
         return self._resources
