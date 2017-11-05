@@ -32,7 +32,7 @@ def archive_article(article):
         logger.error("An error occured when archiving article", e)
         logger.info("Article path: %s" % article_path)
         logger.info("Article absolute url: %s" % article_url)
-        logger.info("Archived url (%s): %s" %  (service.name(), archived_url)
+        logger.info("Archived url (%s): %s" %  (service.name(), archived_url))
 
     article.save()
 
