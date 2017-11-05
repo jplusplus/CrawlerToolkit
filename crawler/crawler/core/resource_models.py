@@ -42,7 +42,7 @@ def resource_path(instance, filename):
 class Resource(inherithance.ParentModel):
     use_resource_type_dir = models.BooleanField(default=True)
     use_unique_name = models.BooleanField(default=True)
-    resource_file = models.FileField(upload_to=resource_path,)
+    resource_file = models.FileField(max_length=255, upload_to=resource_path,)
     article = models.ForeignKey('Article', related_name='resources')
     url = models.URLField(blank=False, null=False, db_index=True)
 
