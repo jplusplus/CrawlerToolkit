@@ -24,9 +24,14 @@ def archive_article(article):
         article_url = utils.absurl(article_path)
         for service in archive.services(article_url):
             service_name = service.name()
-            archived_url = service.start()
-            if not ArchivedArticle.objects.filter(url=archived_url).exists():
+            prev_archive = ArchivedArticle.objects.filter(
+                service=service_name,
+                article=article
+            )
+            if not prev_archive.exists():
+                archived_url = service.start()
                 ArchivedArticle.objects.create(
+                    service=service_name,
                     url=archived_url,
                     article=article)
 
