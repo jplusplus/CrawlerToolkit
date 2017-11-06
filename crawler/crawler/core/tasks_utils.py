@@ -41,7 +41,7 @@ def should_be_archived(articles):
         ).exclude(
             archiving_state=STATES.ARCHIVE.ARCHIVED
         ).exclude(
-            preservation_state=STATES.PRESERVE.NO_PRESERVE
+            preservation_state=STATES.PRESERVATION.NO_PRESERVE
         )
 
 def priority_articles():
