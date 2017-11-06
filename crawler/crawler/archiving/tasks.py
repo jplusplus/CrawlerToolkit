@@ -25,9 +25,10 @@ def archive_article(article):
         for service in archive.services(article_url):
             service_name = service.name()
             archived_url = service.start()
-            ArchivedArticle.objects.create(
-                url=archived_url,
-                article=article)
+            if not ArchivedArticle.objects.filter(url=archived_url).exists():
+                ArchivedArticle.objects.create(
+                    url=archived_url,
+                    article=article)
 
         article.archiving_state = STATES.ARCHIVE.ARCHIVED
     except Exception as e:
