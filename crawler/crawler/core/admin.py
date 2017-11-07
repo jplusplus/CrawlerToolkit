@@ -92,7 +92,6 @@ class ArticleAdmin(admin.ModelAdmin):
         'original_url',
         'created_at',
         'preview_url',
-        'should_preserve',
         'preservation_state',
         'archiving_state',
         'archived_urls'
@@ -108,6 +107,11 @@ class ArticleAdmin(admin.ModelAdmin):
     icon = _icon('description')
     inlines = [ InlineArchivedArticle, ]
     # actions = [ force_crawl_articles, ]
+
+    def get_queryset(self, request):
+        qs = super(ArticleAdmin, self).get_queryset(request)
+        qs = qs.prefetch_related('preservation_tags', 'archived_urls', 'feed')
+        return qs
 
     def original_url(self, obj):
         return '<a href="{href}" target="_blank">visit the article</a>'.format(

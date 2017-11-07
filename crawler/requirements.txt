@@ -13,6 +13,7 @@ constantly==15.1.0
 decorator==4.1.2
 dj-database-url==0.4.2
 Django==1.11.6
+django-debug-toolbar==1.8
 django-material==1.0.0
 django-slugger==1.0.4
 django-storages==1.6.5
@@ -44,6 +45,7 @@ requests-oauthlib==0.8.0
 s3transfer==0.1.11
 simplegeneric==0.8.1
 six==1.11.0
+sqlparse==0.2.4
 traitlets==4.3.2
 Unidecode==0.4.21
 urllib3==1.22

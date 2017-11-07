@@ -32,7 +32,9 @@ ALLOWED_HOSTS = [
     'localhost.dev'
 ]
 
-
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -50,9 +52,11 @@ INSTALLED_APPS = [
     'crawler.scraping',
     'crawler.archiving',
     'crawler.dashboard',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
