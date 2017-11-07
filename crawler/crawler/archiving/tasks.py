@@ -61,11 +61,13 @@ def archive_articles(ids=None, qs=None):
 def check_articles_to_archive():
     from crawler.core import tasks_utils
     articles = list()
-    articles = articles + tasks_utils.release_date_articles()
-    articles = articles + detect_notfound(
+    notfound_articles = detect_notfound(
         tasks_utils.notfound_only_articles()
     )
-    articles = articles + tasks_utils.priority_articles()
-    articles = articles + tasks_utils.release_date_articles()
-    archive_articles(tasks_utils.pickattr(articles, 'pk'))
+    logger.info('Detected %s not found articles' % len(notfound_articles))
+    priority_articles = tasks_utils.priority_articles()
+    release_date_articles =  tasks_utils.release_date_articles()
+
+    articles = notfound_articles + priority_articles + release_date_articles
+    archive_articles(list(set(tasks_utils.pickattr(articles, 'pk'))))
 

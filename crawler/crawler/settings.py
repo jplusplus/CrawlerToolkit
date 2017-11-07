@@ -167,7 +167,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     'archive-articles': {
         'task': 'crawler.archiving.tasks.check_articles_to_archive',
-        'schedule': crontab(minute='*/60')
+        'schedule': crontab(minute='*/5')
     }
 }
 
