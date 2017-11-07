@@ -23,9 +23,9 @@ STATES.CRAWL = States((
 ))
 
 PRESERVATION_STATES = States((
-    ('PRESERVE', 'Should preserve this article'),
-    ('STORED', 'Has been stored in order to be archived'),
-    ('NO_PRESERVE', 'Preservation not required'),
+    ('PRESERVE', 'Should preserve'),
+    ('STORED', 'Has been stored'),
+    ('NO_PRESERVE', 'Not required'),
 ))
 
 STATES.PRESERVATION = PRESERVATION_STATES

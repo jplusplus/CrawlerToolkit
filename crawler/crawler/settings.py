@@ -35,8 +35,11 @@ ALLOWED_HOSTS = [
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
-# Application definition
 
+# Date format conf
+SHORT_DATETIME_FORMAT = 'd/m/Y'
+
+# Application definition
 INSTALLED_APPS = [
     'material.theme.deeporange',
     'material',

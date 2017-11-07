@@ -8,6 +8,14 @@ class PreservationTag(inherithance.ParentModel):
     def should_preserve(self):
         return self.as_leaf_class().should_preserve
 
+    def _is_type(self, model_type):
+        return isinstance(self.as_leaf_class(), model_type)
+
+    def is_release_date(self): return self._is_type(ReleaseDateTag)
+
+    def is_priority(self): return self._is_type(PriorityTag)
+
+    def is_notfound_only(self): return self._is_type(NotFoundOnlyTag)
 
 class PriorityTag(PreservationTag):
     value = models.BooleanField()
@@ -33,9 +41,18 @@ PRESERVATION_TAGS_MAP = {
     PRESERVATION_TAGS.NOT_FOUND_ONLY: NotFoundOnlyTag,
 }
 
+PRESERVATION_TAGS_MAP_REVERSE = {
+    v:k for k,v in PRESERVATION_TAGS_MAP.items()
+}
+def preservation_tag_type(model):
+    _type = PRESERVATION_TAGS_MAP_REVERSE.get(model)
+    if not _type:
+        raise ValueError('model not recognized')
+    return _type
+
 def preservation_tag_model(tag_type):
-    model = PRESERVATION_TAGS_MAP.get(tag_type)
+    model = preservation_tags_map.get(tag_type)
     if not model:
-        raise ValueError('Tag type not recognized')
+        raise valueerror('tag type not recognized')
     return model
 

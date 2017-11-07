@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.urls import reverse
@@ -10,6 +11,7 @@ from crawler.core.models import Feed, Article
 from crawler.core.tag_models import *
 from crawler.archiving.admin import InlineArchivedArticle
 from urllib.parse import urlparse
+from django.utils.dateformat import format
 
 def force_crawl_feeds(modeladmin, request, queryset):
     from crawler.core.tasks_utils import crawl_feeds
@@ -93,8 +95,9 @@ class ArticleAdmin(admin.ModelAdmin):
         'created_at',
         'preview_url',
         'preservation_state',
+        'get_preservation_tags',
         'archiving_state',
-        'archived_urls'
+        'get_archived_urls'
     )
     list_filter = (
         'feed',
@@ -110,7 +113,11 @@ class ArticleAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super(ArticleAdmin, self).get_queryset(request)
-        qs = qs.prefetch_related('preservation_tags', 'archived_urls', 'feed')
+        qs = qs.prefetch_related(
+            'preservation_tags',
+            'archived_urls',
+            'feed'
+        )
         return qs
 
     def original_url(self, obj):
@@ -119,6 +126,7 @@ class ArticleAdmin(admin.ModelAdmin):
         )
     original_url.short_description = 'Orignal article'
     original_url.allow_tags = True
+
     def preview_url(self, obj):
         if obj.preservation_state == STATES.PRESERVATION.STORED:
             preview_url = reverse('store:preview_article', kwargs={
@@ -138,7 +146,35 @@ class ArticleAdmin(admin.ModelAdmin):
 
     preview_url.short_description = 'Preview the stored article'
     preview_url.allow_tags = True
-    def archived_urls(self, obj):
+
+    def get_preservation_tags(self, obj):
+        def get_tag(tag):
+            tag = tag.as_leaf_class()
+            ttype = preservation_tag_type(tag.__class__)
+            ttype = ttype.replace('preservation:', '')
+            if tag.is_release_date():
+                if tag.value:
+                    value = format(tag.value, settings.SHORT_DATETIME_FORMAT)
+                else:
+                    value = '-'
+            else:
+                value = tag.value
+            return (
+                '<div class="chip">'
+                    '<span>{type}</span>:&nbsp;'
+                    '<b class="bold">{value}</b>'
+                '</div>'
+            ).format(type=ttype,value=value)
+        preservation_tags = obj.preservation_tags.all()
+        if preservation_tags.count() > 0:
+            return '&nbsp;'.join(map(get_tag, preservation_tags))
+        else:
+            return 'No tag detected'
+
+    get_preservation_tags.allow_tags = True
+    get_preservation_tags.short_description = 'Detected tags'
+
+    def get_archived_urls(self, obj):
         def archived_url_to_elem(archived):
             host = urlparse(archived.url).hostname
             return (
@@ -152,7 +188,7 @@ class ArticleAdmin(admin.ModelAdmin):
         urls_elems = map(archived_url_to_elem, obj.archived_urls.all())
         return '&nbsp;'.join(urls_elems)
 
-    archived_urls.allow_tags = True
+    get_archived_urls.allow_tags = True
 
 # Unregister unused models.
 admin.site.unregister(Group)
