@@ -51,8 +51,8 @@ def preservation_tag_type(model):
     return _type
 
 def preservation_tag_model(tag_type):
-    model = preservation_tags_map.get(tag_type)
+    model = PRESERVATION_TAGS_MAP.get(tag_type)
     if not model:
-        raise valueerror('tag type not recognized')
+        raise ValueError('tag type not recognized')
     return model
 

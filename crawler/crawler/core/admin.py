@@ -93,9 +93,9 @@ class ArticleAdmin(admin.ModelAdmin):
         'source',
         'original_url',
         'created_at',
-        'preview_url',
         'preservation_state',
         'get_preservation_tags',
+        'preview_url',
         'archiving_state',
         'get_archived_urls'
     )
@@ -106,7 +106,8 @@ class ArticleAdmin(admin.ModelAdmin):
         'preservation_state',
         'archiving_state',
     )
-    readonly_fields = ('serve_url', 'url', 'feed', 'crawled_at', 'slug')
+
+    readonly_fields = ('preview_url', 'url', 'feed', 'crawled_at', 'slug')
     icon = _icon('description')
     inlines = [ InlineArchivedArticle, ]
     # actions = [ force_crawl_articles, ]
