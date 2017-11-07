@@ -15,9 +15,10 @@ logger = get_task_logger(__name__)
 
 def filter_not_needed_tags(qs):
     return qs.exclude(
-        article__preservation_state=STATES.PRESERVATION.NO_PRESERVE,
-        article__archiving_state=STATES.ARCHIVE.ARCHIVED
-    )
+            article__archiving_state=STATES.ARCHIVE.ARCHIVED
+        ).exclude(
+            article__preservation_state=STATES.PRESERVATION.NO_PRESERVE
+        )
 
 def should_be_preserved(articles):
     return list(filter(lambda a: a.should_preserve, articles))
@@ -39,6 +40,8 @@ def should_be_archived(articles):
             pk__in=ids
         ).exclude(
             archiving_state=STATES.ARCHIVE.ARCHIVED
+        ).exclude(
+            preservation_state=STATES.PRESERVATION.NO_PRESERVE
         )
 
 def priority_articles():
