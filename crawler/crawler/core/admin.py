@@ -122,8 +122,9 @@ class ArticleAdmin(admin.ModelAdmin):
         return qs
 
     def original_url(self, obj):
-        return '<a href="{href}" target="_blank">visit the article</a>'.format(
-            href=obj.url
+        return '<a href="{href}" target="_blank">{title}</a>'.format(
+            href=obj.url,
+            title=obj.title,
         )
     original_url.short_description = 'Orignal article'
     original_url.allow_tags = True

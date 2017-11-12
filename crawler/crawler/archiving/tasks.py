@@ -64,7 +64,7 @@ def check_articles_to_archive():
     notfound_articles = detect_notfound(
         tasks_utils.notfound_only_articles()
     )
-    logger.info('Detected %s not found articles' % len(notfound_articles))
+    # logger.info('Detected %s not found articles' % len(notfound_articles))
     priority_articles = tasks_utils.priority_articles()
     release_date_articles =  tasks_utils.release_date_articles()
 

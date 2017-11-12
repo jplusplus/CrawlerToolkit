@@ -83,14 +83,16 @@ def article_preservation_tags(article_id, article_url, *args, **kwargs):
     This task's goal is to return the various preservation tags (if they
     are any).
     """
-    metas = page_metas.scrape(article_url)
-    return list(map(lambda meta: [article_id, meta], metas))
+    [ title, metas ] = page_metas.scrape(article_url)
+    return [ title , list(map(lambda meta: [article_id, meta], metas)) ]
 
 def crawl_preservation_tags(articles, *args, **kwargs):
     from crawler.core.tasks_utils import set_articles_crawled, save_preservation_tags
     tags = list()
     for article in articles:
-        article_tags = article_preservation_tags(article.pk, article.url)
+        [ title, article_tags] = article_preservation_tags(article.pk, article.url)
+        article.title = title
+        article.save()
         tags = tags + article_tags
     tags = save_preservation_tags(tags)
     set_articles_crawled(articles)

@@ -49,6 +49,8 @@ class Article(models.Model):
     objects = managers.ArticleManager()
     created_at = models.DateTimeField(auto_now_add=True)
     crawled_at = models.DateTimeField(null=True)
+    title = models.CharField(max_length=200, default='Title not detected',
+            null=False, blank=False)
     feed = models.ForeignKey('Feed')
     slug = AutoSlugField(
         populate_from='url',
