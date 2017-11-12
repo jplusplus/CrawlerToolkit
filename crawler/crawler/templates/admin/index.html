@@ -4,34 +4,6 @@
 {% block breadcrumbs_items %}
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
 {% endblock %}
-{% block extrastyle %}
-<style>
-.app.dashboard .collection {
-  margin-top: 0;
-}
-
-.app .collection .collection-item {
-  min-height: 52px;
-}
-.app .card {
-  min-height: 218px;
-}
-.app .collection .collection-item span.title {
-  position: absolute;
-  top: 16px;
-  bottom: 16px;
-}
-.app .collection .collection-item.avatar .circle {
-  height: 32px;
-  width: 32px;
-}
-
-.app .collection .collection-item.avatar i.circle {
-  line-height: 32px;
-}
-
-</style>
-{% endblock %}
 {% block content %}
 <div class="row">
   <div class="app-list">
@@ -41,7 +13,7 @@
         <li class="collection-item"><h4>Dashboard</h4></li>
         {% for row in rows %}
         <li class="collection-item avatar">
-          <i class="material-icons circle materialize-red lighten-2">{{ row.icon }}</i>
+          <i class="material-icons circle">{{ row.icon }}</i>
           <span class="title">{{ row.title }}</span>
           <span class="secondary-content">{{ row.value }}</span>
         </li>

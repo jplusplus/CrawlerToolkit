@@ -4,8 +4,70 @@
 
 {% block extrastyle %}
 <style>
+
+.chip .content {
+    display: flex;
+}
+.archived-url.chip a, .archived-url.chip .material-icons {
+    display: inline;
+    line-height: 32px;
+    float: none;
+}
+.archived-url.chip a {
+    vertical-align: center;
+}
+
 .results table tbody a.btn {
   color: white;
+}
+a.btn, a.btn-primary {
+  background-color: #9C9CEA;
+}
+a.btn:hover {
+  background-color: #7272e1;
+}
+.collapsible-body ul li.active, nav {
+  background-color: #595998 !important;
+}
+.userView {
+ /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#9b9be9+0,505088+100 */
+  background: #9b9be9; /* Old browsers */
+  background: -moz-radial-gradient(center, ellipse cover, #9b9be9 0%, #505088 100%); /* FF3.6-15 */
+  background: -webkit-radial-gradient(center, ellipse cover, #9b9be9 0%,#505088 100%); /* Chrome10-25,Safari5.1-6 */
+  background: radial-gradient(ellipse at center, #9b9be9 0%,#505088 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#9b9be9', endColorstr='#505088',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */ 
+  background-size: 150%;
+  background-position-x:90%; 
+  background-position-y:90%; 
+}
+
+.app-list .app .card .app-item a, .secondary-content {
+  color: #9C9CEA;
+}
+
+.app.dashboard .collection {
+  margin-top: 0;
+}
+
+.app .collection .collection-item {
+  min-height: 52px;
+}
+.app .card {
+  min-height: 218px;
+}
+.app .collection .collection-item span.title {
+  position: absolute;
+  top: 16px;
+  bottom: 16px;
+}
+.app .collection .collection-item.avatar .circle {
+  height: 32px;
+  width: 32px;
+  background-color: #9C9CEA;
+}
+
+.app .collection .collection-item.avatar i.circle {
+  line-height: 32px;
 }
 </style>
 {% endblock %}

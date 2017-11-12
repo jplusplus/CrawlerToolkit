@@ -9,10 +9,12 @@
 {% block content %}
 <style>
 .registration {
-  background-image: url({% static 'images/background.jpg' %}) !important;
-  background-size: cover;
-
+  background: #fafaff !important;
 }
+.logo img {
+  height: 400px;
+}
+
 </style>
 <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
   {% if 'username' in form.fields %}
@@ -36,4 +38,4 @@
 </form>
 {% endblock %}
 
-{% block icon %}archive{% endblock %}
+{% block icon %}<img src="{% static 'images/offshore.svg' %}"/>{% endblock %}

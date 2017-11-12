@@ -41,7 +41,7 @@ SHORT_DATETIME_FORMAT = 'd/m/Y'
 
 # Application definition
 INSTALLED_APPS = [
-    'material.theme.deeporange',
+    'material.theme.red',
     'material',
     'material.frontend',
     'material.admin',

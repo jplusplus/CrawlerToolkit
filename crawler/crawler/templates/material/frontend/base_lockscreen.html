@@ -1,0 +1,40 @@
+{% extends "material/frontend/base_site.html" %}
+{% load i18n static %}
+
+{% block body %}
+{% block main %}
+<div class="registration" style="background:url({% static 'material/imgs/background.svg' %})">
+    <div class="sidebar z-depth-3">
+        <h4>{% block page_title %}{{ block.super }}{% endblock %}</h4>
+        {% block content %}{% endblock %}
+    </div>
+    
+    {% block icon_wrapper %}
+    <div class="logo">
+        {% block icon %}<img src="{% static 'images/offshore.svg' %}"/>{% endblock %}
+    </div>
+    {% endblock %}
+
+    <style>
+        /*
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-bottom: 1px solid #9C9CEA !important;
+            box-shadow: 0 1px 0 0 #9C9CEA !important;
+        }
+        input[type="text"]:focus + label,input[type="password"]:focus + label {
+            color: #9C9CEA !important;
+        }
+        .input-field .prefix.active {
+            color: #9C9CEA;
+        }
+        .btn, .btn-primary {
+          background-color: #9C9CEA;
+        }
+        .btn:hover, .bth-primary:hover {
+          background-color: #7272e1;
+        }
+        */
+    </style>
+</div>
+{% endblock %}
+{% endblock %}

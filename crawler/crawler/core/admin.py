@@ -136,7 +136,7 @@ class ArticleAdmin(admin.ModelAdmin):
                 })
             return (
                 '<a href="{href}" target="_blank" '
-                    'class="btn wave-effects  waves-light">'
+                    'class="btn wave-effects waves-light z-depth-0">'
                     '<i class="material-icons left">remove_red_eye</i>preview'
                 '</a>'
             ).format(
@@ -179,10 +179,13 @@ class ArticleAdmin(admin.ModelAdmin):
         def archived_url_to_elem(archived):
             host = urlparse(archived.url).hostname
             return (
-                "<div class='chip'>"
-                    "<a href='{url}' target='_blank'>"
-                        "<i class='close material-icons'>link</i>{host}"
-                    "</a>"
+                "<div class='chip archived-url'>"
+                    "<div class='content'>"
+                        "<a href='{url}' target='_blank'>"
+                            "{host}"
+                        "</a>"
+                        "<i class='close material-icons'>link</i>"
+                    "</div>"
                 "</div>"
             ).format(host=host, url=archived.url)
 
