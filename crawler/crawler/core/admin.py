@@ -93,9 +93,8 @@ class ArticleAdmin(admin.ModelAdmin):
         'source',
         'original_url',
         'created_at',
-        'preservation_state',
+        'get_preservation_state',
         'get_preservation_tags',
-        'preview_url',
         'archiving_state',
         'get_archived_urls'
     )
@@ -137,7 +136,7 @@ class ArticleAdmin(admin.ModelAdmin):
                 })
             return (
                 '<a href="{href}" target="_blank" '
-                    'class="btn wave-effects waves-light z-depth-0">'
+                    'class="btn--preview btn wave-effects waves-light z-depth-0">'
                     '<i class="material-icons left">remove_red_eye</i>preview'
                 '</a>'
             ).format(
@@ -146,8 +145,25 @@ class ArticleAdmin(admin.ModelAdmin):
         else:
             return ''
 
-    preview_url.short_description = 'Preview the stored article'
-    preview_url.allow_tags = True
+    def get_preservation_state(self, obj):
+        state = obj.preservation_state
+        label = 'Preservation tags not crawled yet'
+        preview = ''
+        if state:
+            label = STATES.PRESERVATION.label(obj.preservation_state)
+            if state == STATES.PRESERVATION.STORED:
+                preview = '<br/>' + self.preview_url(obj)
+        html = (
+            '<div class="text-center">'
+                '<span>{label}</span>'
+                '{preview}'
+            '</div>'
+        ).format(label=label, preview=preview)
+
+        return html
+
+    get_preservation_state.allow_tags = True
+    get_preservation_state.short_description = 'Preservation State'
 
     def get_preservation_tags(self, obj):
         def get_tag(tag):
