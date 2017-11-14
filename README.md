@@ -29,10 +29,7 @@ To install all dependencies (see [Dependencies]()) you must have the following p
 
 ### Get the sources
 ```sh
-# if you have the rights to edit this repo
-git clone git@github.com:pbellon/CrawlerToolkit.git
-# Otherwise
-git clone https://github.com/pbellon/CrawlerToolkit.git
+git clone https://github.com/jplusplus/CrawlerToolkit.git
 cd CrawlerToolkit
 
 ```
