@@ -62,10 +62,10 @@ This application relies on environnement variable to run.
 | `AWS_ACCESS_KEY_ID` | Amazon Web Service acces key's id, required on heroku to serve & upload static files. |
 | `AWS_SECRET_ACCESS_KEY` | As above, required for static files serving & uploading. |
 | `AWS_STORAGE_BUCKET_NAME` | The name of the S3 storage bucket |
-| `TWITTER_ACCESS_TOKEN` | Token to access [Twitter's API]() |
-| `TWITTER_ACCESS_SECRET`| Acces's secret for [Twitter's API]() |
-| `TWITTER_CONSUMER_KEY`| Twitter comsumer key |
-| `TWITTER_CONSUMER_SECRET`| Token to access [Twitter's API]() |
+| `TWITTER_ACCESS_TOKEN` | Token to access [Twitter's API](#twitter) |
+| `TWITTER_ACCESS_SECRET`| Acces's secret for [Twitter's API](#twitter) |
+| `TWITTER_CONSUMER_KEY`| Twitter consumer key for [Twitter's API](#twitter) |
+| `TWITTER_CONSUMER_SECRET`| Token to access [Twitter's API](#twitter) |
 
 #### On local
 To configure the local application we use and `.env` file. To configure it copy the `.env.template` file:
@@ -104,6 +104,9 @@ Then add the proper `heroku` git remote with the following command
 # <app> is the heroku application's name
 $ heroku git:remote -a <npp>
 ```
+
+#### Twitter
+This project uses the Twitter's API in order to retrieve tweets from twitter feeds. Thus, you'll need to [create a twitter app](https://apps.twitter.com/app/new) and generate a set of Token Access (in the Keys and Access Tokens tab). Then report the various keys, secrets and tokens in the appropriate [environnement variables](#the-environnement-variables)
 
 ## How to use
 ### Run servers locally
