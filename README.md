@@ -1,16 +1,20 @@
 # Offshore Journalism Toolkit
 
 ## Summary
-- How to install
-  - Prerequisites
-  - Get the sources
-  - Install
-- Configuration
-  - Operations on the django application
-  - Operations on the jekyll application
-- How to deploy
-  - Deploying the crawling app
-  - Deploying the testing app
+- [How to install](#how-to-install)
+  - [Prerequisites](#prerequisites)
+  - [Get the sources](#get-the-sources)
+  - [Install](#install)
+- [Configuration](#configure-the-application)
+  - [The environnement variables](#the-environnement-variables)
+  - [Set up external services](#set-up-external-services)
+- [How to use](#how-to-use)
+  - [Run servers locally](#run-servers-locally)
+  - [Operations on the django application](#operations-on-the django-application)
+  - [Operations on the jekyll application](#operations-on-the jekyll-application
+- [How to deploy](#how-to-deploy)
+  - [Deploy the crawler](#deploy-the-crawler)
+  - [Deploy the test site](#deploy-the-test-site)
 
 
 ## How to install
@@ -50,31 +54,20 @@ sudo dnf install redis
 ./manage.sh install
 ```
 
-#### 3. *(optionnal) Install tmux*
-We've created a way to locally run all services / parts of the application at once (See "Run servers") however it depends on tmux in order to be able to create pane.
-
-```sh
-# On Mac OS X
-brew install tmux
-# On Debian-based distros
-sudo apt-get install tmux
-# On RedHat-based distros
-sudo dnf install tmux 
-``` 
-
 ## Configure the application
 ### The environnement variables
 This application relies on environnement variable to run. 
+
 | Name | Purpose |
-|------|---------|
-|`DJANGO_SETTINGS_MODULE`| Change the settings file to use for the django app (ex `settings_dev` and `settings_heroku`)|
-|`AWS_ACCESS_KEY_ID` | Amazon Web Service acces key's id, required on heroku to serve & upload static files.|
-|`AWS_SECRET_ACCESS_KEY`| As above, required for static files serving & uploading.|
-|`AWS_STORAGE_BUCKET_NAME`|The name of the S3 storage bucket|
-|`TWITTER_ACCESS_TOKEN`'|Token to access [Twitter's API]()|
-|`TWITTER_ACCESS_SECRET`|Acces's secret for [Twitter's API]()|
-|`TWITTER_CONSUMER_KEY`||
-|`TWITTER_CONSUMER_SECRET`|Token to access [Twitter's API]()|
+| ---- | ------- |
+| `DJANGO_SETTINGS_MODULE` | Change the settings file to use for the django app (ex `settings_dev` and `settings_heroku`) |
+| `AWS_ACCESS_KEY_ID` | Amazon Web Service acces key's id, required on heroku to serve & upload static files. |
+| `AWS_SECRET_ACCESS_KEY` | As above, required for static files serving & uploading. |
+| `AWS_STORAGE_BUCKET_NAME` | The name of the S3 storage bucket |
+| `TWITTER_ACCESS_TOKEN` | Token to access [Twitter's API]() |
+| `TWITTER_ACCESS_SECRET`| Acces's secret for [Twitter's API]() |
+| `TWITTER_CONSUMER_KEY`| Twitter comsumer key |
+| `TWITTER_CONSUMER_SECRET`| Token to access [Twitter's API]() |
 
 #### On local
 To configure the local application we use and `.env` file. To configure it copy the `.env.template` file:
@@ -82,6 +75,7 @@ To configure the local application we use and `.env` file. To configure it copy 
 cp .env.template .env
 ```
 Then edit `.env` to fill the proper variables
+
 #### On Heroku
 All configuration variables can be edited from the heroku dashboard or with the following command.
 ```sh
@@ -127,12 +121,6 @@ $ heroku git:remote -a <npp>
 ./manage start_test_site <optional port, default 5000>
 ``` 
 
-Or you can run all those services at once but it requires you to install tmux (see Install)
-```sh
-./manage start
-```
-
-
 ### Operations on the django application
 If you need to perform operations on the application you have access to all django commands throught the following command:
 ```sh
@@ -144,7 +132,7 @@ If you need to perform operations on the application you have access to all djan
 ./manage.sh jekyll --help
 ```
 
-## Deploy
+## How to deploy
 
 ### Deploy the crawler
 The crawler itself is parametered to be deployed on heroku with the following command
