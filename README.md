@@ -10,8 +10,8 @@
   - [Set up external services](#set-up-external-services)
 - [How to use](#how-to-use)
   - [Run servers locally](#run-servers-locally)
-  - [Operations on the django application](#operations-on-the django-application)
-  - [Operations on the jekyll application](#operations-on-the jekyll-application
+  - [Operations on the django application](#operations-on-the-django-application)
+  - [Operations on the jekyll application](#operations-on-the-jekyll-application)
 - [How to deploy](#how-to-deploy)
   - [Deploy the crawler](#deploy-the-crawler)
   - [Deploy the test site](#deploy-the-test-site)
@@ -127,7 +127,7 @@ If you need to perform operations on the application you have access to all djan
 ./manage.sh django --help
 ```
 
-### Operation on the jekyll application
+### Operations on the jekyll application
 ```sh
 ./manage.sh jekyll --help
 ```
