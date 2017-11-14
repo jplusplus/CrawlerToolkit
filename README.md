@@ -1,4 +1,5 @@
 # Offshore Journalism Toolkit
+The crawler toolkit is part of the [Offshore Journalism](http://www.offshorejournalism.com) initiative. It's a proof-of-concept of the `preversation` meta tag. Thus this project is divided in two parts, first the crawler, a django application designed to crawl feeds (RSS, atom or Twitter account) and preserve, if needed, articles tagged with preservation meta. The second part (the test site) is dedicated to test the preservation tags. It implements a simple version of the preservation meta tags and is based on Jekyll. 
 
 ## Summary
 - [How to install](#how-to-install)
