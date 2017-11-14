@@ -101,8 +101,8 @@ $ heroku login
 ```
 Then add the proper `heroku` git remote with the following command
 ```sh
-# <app> is the heroku application's name
-$ heroku git:remote -a <npp>
+# replace <app> with your heroku's application name
+$ heroku git:remote -a <app>
 ```
 
 #### Twitter
