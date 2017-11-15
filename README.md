@@ -133,23 +133,7 @@ If you need to perform operations on the application you have access to all djan
 ```sh
 ./manage.sh jekyll --help
 ```
-
-## How to deploy
-
-### Deploy the crawler
-The crawler itself is parametered to be deployed on heroku with the following command
-```sh
-# This helper function calls the following git command:
-# git subtree push --prefix crawl/ heroku master
-./manage.sh deploy
-```
-### Deploy the test site
-By default we parametered the `test-site` to be deployed on [surge.sh](http://surge.sh).
-```sh
-$ ./manage.sh deploy_test_site
-``` 
-
-## Adding content on the test site
+### Adding content on the test site
 Currently, the test site is built thanks to Jekyll and the minimal-mistakes theme.
 So in order to make a new post work properly you'll need to create a post in `tests-site/_posts`
 folder (like on Jekyll) but with the `single` layout instead of the `post` that you'd expect.
@@ -170,3 +154,18 @@ preservation:
   - type: priority
     value: true
 ---
+
+## How to deploy
+
+### Deploy the crawler
+The crawler itself is parametered to be deployed on heroku with the following command
+```sh
+# This helper function calls the following git command:
+# git subtree push --prefix crawl/ heroku master
+./manage.sh deploy
+```
+### Deploy the test site
+By default we parametered the `test-site` to be deployed on [surge.sh](http://surge.sh).
+```sh
+$ ./manage.sh deploy_test_site
+``` 
