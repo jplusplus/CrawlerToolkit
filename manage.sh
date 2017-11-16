@@ -34,6 +34,10 @@ django () {
   ./crawler/manage.py $@
 }
 
+shell() {
+  django shell
+}
+
 makemigrations () {
   django makemigrations
 }
