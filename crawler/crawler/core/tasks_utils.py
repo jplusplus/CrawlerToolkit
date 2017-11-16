@@ -86,7 +86,7 @@ def crawl_feed(feed):
 def crawl_articles(articles):
     from crawler.constants import STATES
     from crawler.scraping.tasks import crawl_articles as _crawl
-    _crawl.delay(pickattr(articles, 'pk'))
+    _crawl.delay(ids=pickattr(articles, 'pk'))
 
 
 def create_articles(articles_urls):
@@ -124,10 +124,15 @@ def create_articles(articles_urls):
         )
     return created
 
-def delete_tags_of(ids):
+def delete_tags_of(articles):
     from crawler.core.models import PreservationTag
-    tags = PreservationTag.objects.filter(article_id__in=ids)
+    tags = PreservationTag.objects.filter(article__in=articles)
     [ tag.delete() for tag in tags]
+
+
+def delete_resources_of(articles):
+    from crawler.core.models import Resource
+    return [ r.delete() for r in Resource.objects.filter(article__in=articles) ]
 
 def set_articles_crawled(articles):
     for article in articles:
@@ -237,8 +242,8 @@ def create_or_update_resources(article, resources_dict, css_resources):
                             )
                             sub_resource.set_content(sr_dict['filename'], sr_dict['content'])
                             sub_resources_list.append(sub_resource)
-
-                    content = as_hosted_content(content, sub_resources_list)
+                    if len(sub_resources_list) > 0:
+                        content = as_hosted_content(content, sub_resources_list)
 
                 resource.set_content(fn, content)
                 article_resources.append(resource)
