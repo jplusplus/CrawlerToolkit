@@ -8,17 +8,34 @@ def url_to_filename(url):
     path = urlparse(url).path
     return path.split('/')[-1]
 
-def crawl_resource(url):
+def crawl_resource(page_url, url):
+    get_url = url
+    if not url.startswith('http'):
+        parsed = urlparse(page_url)
+        base = "{scheme}://{host}".format(
+            scheme=parsed.scheme,
+            host=parsed.hostname
+        )
+        if not url.startswith('/'):
+            base += '/'
+
+        get_url = urljoin(base, url)
+
     return {
         'url': url,
         'filename': url_to_filename(url),
-        'content': requests.get(url).content,
+        'content': requests.get(get_url).content,
     }
+
+def filter_data_urls(urls):
+    return filter(lambda url: not url.startswith('data:'), urls)
 
 class HTMLScraper(object):
     def __init__(self, url):
         self._url = url
-        content = requests.get(url).content
+        req = requests.get(url)
+        self._site_url = req.url
+        content = req.content
         self._html_content = content
         self._tree = etree.fromstring(content, parser=etree.HTMLParser())
         self._stylesheet_urls = self._tree.xpath('//link[@rel="stylesheet"]/@href')
@@ -36,13 +53,17 @@ class HTMLScraper(object):
 
     def _crawl_resources(self):
         for _, urls in self._urls_mapping.items():
-            self._resources[_] = list(map(crawl_resource, urls))
+            urls = filter_data_urls(urls)
+            self._resources[_] = list(
+                map(lambda url: crawl_resource(self._site_url, url), urls)
+            )
 
     def _crawl_subresources(self, resource_url, urls):
         resource_dict = {
             RESOURCE_TYPES.FONT: [],
             RESOURCE_TYPES.IMAGE: [],
         }
+        urls = filter_data_urls(urls)
         for origin_url in urls:
             url = origin_url
             if not url.startswith('http'):
