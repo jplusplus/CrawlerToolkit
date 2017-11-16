@@ -10,6 +10,9 @@ auth = OAuth1(
     twitter.ACCESS_TOKEN, twitter.ACCESS_SECRET,
 )
 
+def only_external_links(urls):
+    return filter(lambda url: url.find('twitter.com') < 0, urls)
+
 def scrape(account_url):
     account_name = account_url.replace('https://twitter.com/', '')
     # implied multiline string.
@@ -30,4 +33,4 @@ def scrape(account_url):
             map(lambda url_obj: url_obj['expanded_url'], tweet_urls)
         )
 
-    return urls
+    return only_external_links(urls)
