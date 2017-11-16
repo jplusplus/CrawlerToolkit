@@ -124,6 +124,16 @@ def create_articles(articles_urls):
         )
     return created
 
+def reset_articles_states(articles):
+    if getattr(articles, 'update', None):
+        articles.update(archiving_state=None)
+        articles.update(preservation_state='')
+    else:
+        for a in articles:
+            a.preservation_state = ''
+            a.archiving_state = None
+            a.save()
+
 def delete_tags_of(articles):
     from crawler.core.models import PreservationTag
     tags = PreservationTag.objects.filter(article__in=articles)
@@ -136,7 +146,7 @@ def delete_resources_of(articles):
 
 def delete_archived_urls_of(articles):
     from crawler.archiving.models import ArchivedArticle
-    urls = ArchivedArticle.objects.filter(article_in=articles)
+    urls = ArchivedArticle.objects.filter(article__in=articles)
     return [ url.delete() for url in urls ]
 
 def set_articles_crawled(articles):

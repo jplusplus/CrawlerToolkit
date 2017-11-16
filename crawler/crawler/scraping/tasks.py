@@ -45,8 +45,7 @@ def crawl_articles(ids=None, qs=None):
     else:
         articles = qs
 
-    articles.update(archiving_state=None)
-    articles.update(preservation_state='')
+    utils.reset_articles_states(articles)
 
     # we delete previously detected of the given articles
     utils.delete_tags_of(articles)
