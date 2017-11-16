@@ -10,11 +10,6 @@ def _handle(request, feed_slug, article_slug, preview=False):
     if article and article.archiving_state == ARCHIVING or preview:
         html_resource = HTMLResource.objects.get(article=article.pk)
         return FileResponse(html_resource.resource_file)
-        # html = html_resource.resource_file.read()
-        # html_string = html.decode()
-        # html_string = html_string.replace('\\n','')
-        # import ipdb; ipdb.set_trace()
-        # return HttpResponse(html, content_type='text/html')
     else:
         return HttpResponseNotFound()
 
