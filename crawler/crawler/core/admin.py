@@ -147,7 +147,7 @@ class ArticleAdmin(admin.ModelAdmin):
 
     def get_preservation_state(self, obj):
         state = obj.preservation_state
-        label = 'Preservation tags not crawled yet'
+        label = 'Crawling preservation tags'
         preview = ''
         if state:
             label = STATES.PRESERVATION.label(obj.preservation_state)
