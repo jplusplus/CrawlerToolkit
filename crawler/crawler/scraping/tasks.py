@@ -46,7 +46,7 @@ def crawl_articles(ids=None, qs=None):
         articles = qs
     # we delete previously detected of the given articles
     utils.delete_tags_of(articles)
-    articles.update(preservation_state=None)
+    articles.update(preservation_state='')
     # we crawl (and create) the apprioriate preservation tags
     crawl_preservation_tags(articles)
     # now that our articles are tagged we can crawl & store the resources

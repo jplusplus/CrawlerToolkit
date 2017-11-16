@@ -187,7 +187,7 @@ class ArticleAdmin(admin.ModelAdmin):
         if preservation_tags.count() > 0:
             return '&nbsp;'.join(map(get_tag, preservation_tags))
         else:
-            if obj.preservation_state:
+            if len(obj.preservation_state) > 0:
                 return 'No tag detected'
             else:
                 return 'Crawling preservation tags'
