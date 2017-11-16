@@ -25,10 +25,16 @@ def crawl_resource(page_url, url):
         'url': url,
         'filename': url_to_filename(url),
         'content': requests.get(get_url).content,
+        'get_url': get_url,
     }
 
-def filter_data_urls(urls):
-    return filter(lambda url: not url.startswith('data:'), urls)
+def valid_urls(urls):
+    def valid_url(url):
+        not_data = not url.startswith('data:')
+        not_empty = len(url.strip()) > 0
+        return not_data and not_empty
+
+    return filter(valid_url, urls)
 
 class HTMLScraper(object):
     def __init__(self, url):
@@ -53,7 +59,7 @@ class HTMLScraper(object):
 
     def _crawl_resources(self):
         for _, urls in self._urls_mapping.items():
-            urls = filter_data_urls(urls)
+            urls = valid_urls(urls)
             self._resources[_] = list(
                 map(lambda url: crawl_resource(self._site_url, url), urls)
             )
@@ -63,7 +69,7 @@ class HTMLScraper(object):
             RESOURCE_TYPES.FONT: [],
             RESOURCE_TYPES.IMAGE: [],
         }
-        urls = filter_data_urls(urls)
+        urls = valid_urls(urls)
         for origin_url in urls:
             url = origin_url
             if not url.startswith('http'):
@@ -82,13 +88,14 @@ class HTMLScraper(object):
                 'filename': url_to_filename(origin_url),
                 'content': req.content
             })
+
         return resource_dict
 
     def _crawl_css_resources(self):
         for resource in self._resources.get(RESOURCE_TYPES.STYLE):
             content = resource['content'].decode()
             sub_resource_urls = re.findall('url\("([^)]+)"\)', content)
-            sub_resources = self._crawl_subresources(resource['url'], sub_resource_urls)
+            sub_resources = self._crawl_subresources(resource['get_url'], sub_resource_urls)
             self._css_resources[resource['url']] = sub_resources
 
     def html_content(self, pretty_print=False):
