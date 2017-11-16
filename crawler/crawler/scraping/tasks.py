@@ -46,14 +46,16 @@ def crawl_articles(ids=None, qs=None):
         articles = qs
     # we delete previously detected of the given articles
     utils.delete_tags_of(articles)
+    articles.update(preservation_state=None)
     # we crawl (and create) the apprioriate preservation tags
     crawl_preservation_tags(articles)
     # now that our articles are tagged we can crawl & store the resources
     # of the articles that must be stored
+    utils.delete_resources_of(articles)
     crawl_resources(utils.should_be_preserved(articles))
     # Now that resources have been crawled we can stored
     archive_articles.delay(
-        utils.pickattr(utils.should_be_archived(articles), 'pk')
+        ids=utils.pickattr(utils.should_be_archived(articles), 'pk')
     )
 
 @task(ignore_results=True)
@@ -108,7 +110,10 @@ def scrape_article_resources(url):
     return [ html_content, html_resources, css_resources ]
 
 def crawl_article_resources(article):
+    from crawler.constants import STATES
     from crawler.core import tasks_utils as utils
+    article.preservation_state = STATES.PRESERVATION.PRESERVING
+    article.save()
     [ html_content, resources, css_resources ] = scrape_article_resources(article.url)
     utils.save_resources(article, html_content, resources, css_resources)
 

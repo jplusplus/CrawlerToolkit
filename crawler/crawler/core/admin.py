@@ -13,6 +13,10 @@ from crawler.archiving.admin import InlineArchivedArticle
 from urllib.parse import urlparse
 from django.utils.dateformat import format
 
+def force_crawl_articles(modeladmin, request, queryset):
+    from crawler.core.tasks_utils import crawl_articles
+    crawl_articles(queryset)
+
 def force_crawl_feeds(modeladmin, request, queryset):
     from crawler.core.tasks_utils import crawl_feeds
     crawl_feeds(queryset)
@@ -27,10 +31,6 @@ class FeedAdmin(admin.ModelAdmin):
     readonly_fields = ('last_time_crawled',)
     icon = _icon('rss_feed')
 
-
-def force_crawl_articles(modeladmin, request, queryset):
-    from crawler.core.tasks_utils import crawl_articles
-    crawl_articles(queryset)
 
 class ShouldPreserveFilter(admin.SimpleListFilter):
     title = 'need of preservation'
@@ -109,7 +109,7 @@ class ArticleAdmin(admin.ModelAdmin):
     readonly_fields = ('preview_url', 'url', 'feed', 'crawled_at', 'slug')
     icon = _icon('description')
     inlines = [ InlineArchivedArticle, ]
-    # actions = [ force_crawl_articles, ]
+    actions = [ force_crawl_articles, ]
 
     def get_queryset(self, request):
         qs = super(ArticleAdmin, self).get_queryset(request)
@@ -187,7 +187,10 @@ class ArticleAdmin(admin.ModelAdmin):
         if preservation_tags.count() > 0:
             return '&nbsp;'.join(map(get_tag, preservation_tags))
         else:
-            return 'No tag detected'
+            if obj.preservation_state:
+                return 'No tag detected'
+            else:
+                return 'Crawling preservation tags'
 
     get_preservation_tags.allow_tags = True
     get_preservation_tags.short_description = 'Detected tags'
@@ -210,6 +213,7 @@ class ArticleAdmin(admin.ModelAdmin):
         return '&nbsp;'.join(urls_elems)
 
     get_archived_urls.allow_tags = True
+    get_archived_urls.short_description = 'Archived URLs'
 
 # Unregister unused models.
 admin.site.unregister(Group)

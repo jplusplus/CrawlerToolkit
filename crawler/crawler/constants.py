@@ -23,7 +23,8 @@ STATES.CRAWL = States((
 ))
 
 PRESERVATION_STATES = States((
-    ('PRESERVE', 'Should preserve'),
+    ('PRESERVE', 'Will download resources soon'),
+    ('PRESERVING', 'Downloading resources'),
     ('STORED', 'Has been stored'),
     ('NO_PRESERVE', 'Not required'),
 ))
