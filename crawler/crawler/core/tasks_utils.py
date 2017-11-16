@@ -205,10 +205,11 @@ def as_hosted_content(content, resources):
             return _dict[match.group(0)]
         return rx.sub(one_xlat, txt)
 
-    mapped_urls = {
-        resource.url: mediaurl(resource.resource_file.url) for resource in resources
-    }
-    content = multiple_replace(content, mapped_urls)
+    if len(resources) > 0:
+        mapped_urls = {
+            resource.url: mediaurl(resource.resource_file.url) for resource in resources
+        }
+        content = multiple_replace(content, mapped_urls)
     return bytes(content, 'utf-8')
 
 def create_or_update_resources(article, resources_dict, css_resources):
@@ -247,8 +248,8 @@ def create_or_update_resources(article, resources_dict, css_resources):
                             )
                             sub_resource.set_content(sr_dict['filename'], sr_dict['content'])
                             sub_resources_list.append(sub_resource)
-                    if len(sub_resources_list) > 0:
-                        content = as_hosted_content(content, sub_resources_list)
+
+                    content = as_hosted_content(content, sub_resources_list)
 
                 resource.set_content(fn, content)
                 article_resources.append(resource)
