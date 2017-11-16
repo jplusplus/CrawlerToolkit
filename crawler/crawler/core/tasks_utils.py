@@ -134,6 +134,11 @@ def delete_resources_of(articles):
     from crawler.core.models import Resource
     return [ r.delete() for r in Resource.objects.filter(article__in=articles) ]
 
+def delete_archived_urls_of(articles):
+    from crawler.archiving.models import ArchivedArticle
+    urls = ArchivedArticle.objects.filter(article_in=articles)
+    return [ url.delete() for url in urls ]
+
 def set_articles_crawled(articles):
     for article in articles:
         article.crawled_at = timezone.now()

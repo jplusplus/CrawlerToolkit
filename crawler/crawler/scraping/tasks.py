@@ -54,8 +54,11 @@ def crawl_articles(ids=None, qs=None):
     utils.delete_resources_of(articles)
     crawl_resources(utils.should_be_preserved(articles))
     # Now that resources have been crawled we can stored
+    articles_to_archive = utils.should_be_archived(articles)
+    articles_to_archive.update(archiving_state=None)
+    utils.delete_archived_urls_of(articles)
     archive_articles.delay(
-        ids=utils.pickattr(utils.should_be_archived(articles), 'pk')
+        ids=utils.pickattr(articles_to_archive, 'pk')
     )
 
 @task(ignore_results=True)
