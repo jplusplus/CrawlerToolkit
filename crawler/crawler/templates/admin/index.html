@@ -1,9 +1,9 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_static material_admin dashboard %}
-
 {% block breadcrumbs_items %}
 <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
 {% endblock %}
+{% block title %}Dashboard - Offshore Journalism Crawler{% endblock %}
 {% block content %}
 <div class="row">
   <div class="app-list">

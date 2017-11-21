@@ -13,17 +13,11 @@ from crawler.archiving.admin import InlineArchivedArticle
 from urllib.parse import urlparse
 from django.utils.dateformat import format
 
-def force_crawl_articles(modeladmin, request, queryset):
-    from crawler.core.tasks_utils import crawl_articles
-    crawl_articles(queryset)
-
-def force_crawl_feeds(modeladmin, request, queryset):
-    from crawler.core.tasks_utils import crawl_feeds
-    crawl_feeds(queryset)
+from .filters import ShouldPreserveFilter, PreservationTypeFilter
+from .actions import force_crawl_articles, force_crawl_feeds
 
 def _icon(icon_name): return '<i class="material-icons">%s</i>' % icon_name
 
-@admin.register(Feed)
 class FeedAdmin(admin.ModelAdmin):
     actions = [ force_crawl_feeds, ]
     fields = ('active', 'url', 'name')
@@ -31,62 +25,8 @@ class FeedAdmin(admin.ModelAdmin):
     readonly_fields = ('last_time_crawled',)
     icon = _icon('rss_feed')
 
+admin.site.register(Feed, FeedAdmin)
 
-class ShouldPreserveFilter(admin.SimpleListFilter):
-    title = 'need of preservation'
-    parameter_name = 'should_preserve'
-
-    def lookups(self, request, model_admin):
-        return (
-            ('0', 'No'),
-            ('1', 'Yes'),
-        )
-    def choices(self, cl):
-        for lookup, title in self.lookup_choices:
-            yield {
-                'selected': self.value() == lookup,
-                'query_string': cl.get_query_string({
-                    self.parameter_name: lookup,
-                }, []),
-                'display': title,
-            }
-    def queryset(self, request, queryset):
-        value = self.value()
-        if value == '1':
-            states = (
-                STATES.PRESERVATION.PRESERVE,
-                STATES.PRESERVATION.STORED,
-            )
-            queryset = queryset.filter(
-                preservation_state__in=states
-            )
-        return queryset
-
-class PreservationTypeFilter(admin.SimpleListFilter):
-    title = 'Preservation tags detected'
-    parameter_name = 'preservation_tags'
-    def preservation_tag_model(self, tag_type):
-        model = PRESERVATION_TAGS_MAP.get()
-        if not model:
-            raise ValueError('Tag type not recognized')
-    def lookups(self, request, model_admin):
-        keywords = (
-            (PRESERVATION_TAGS.PRIORITY, 'priority'),
-            (PRESERVATION_TAGS.RELEASE_DATE, 'release_date'),
-            (PRESERVATION_TAGS.NOT_FOUND_ONLY,'notfound_only')
-        )
-        return keywords
-
-    def queryset(self, request, queryset):
-        value = self.value()
-        if value:
-            PreservationModel = preservation_tag_model(value)
-            tag_qs = PreservationModel.objects.filter(article__in=queryset)
-            queryset = queryset.filter(preservation_tags__in=tag_qs)
-
-        return queryset
-
-@admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
     list_display = (
         'id',
@@ -215,6 +155,10 @@ class ArticleAdmin(admin.ModelAdmin):
     get_archived_urls.allow_tags = True
     get_archived_urls.short_description = 'Archived URLs'
 
+admin.site.register(Article, ArticleAdmin)
+
 # Unregister unused models.
 admin.site.unregister(Group)
 admin.site.unregister(Module)
+
+admin.site.site_title = 'Offshore Journalism Crawler'

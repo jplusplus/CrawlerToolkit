@@ -1,10 +1,7 @@
 {% extends "admin/base.html" %}
-
-{% block page_title %}Crawler Toolkit{% endblock %}
-
+{% block title %}{{ title }} | {{ site_title|default:_('Offshore Journalism Crawler') }}{% endblock %}
 {% block extrastyle %}
 <style>
-
 .chip .content {
     display: flex;
 }
