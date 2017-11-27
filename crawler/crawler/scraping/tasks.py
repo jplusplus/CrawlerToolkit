@@ -7,10 +7,9 @@ from celery.contrib import rdb
 from celery.decorators import task
 from crawler.constants import FEED_TYPES
 from crawler.celery import app
-
+from celery import chain
 # Scrapers 
 from .scrapers import twitter, xml, page_metas
-from .scrapers.html import HTMLScraper
 
 logger = get_task_logger(__name__)
 
@@ -37,34 +36,29 @@ def __feeds_urls(feeds):
     return all_urls
 
 @task(ignore_results=True)
-def crawl_articles(ids=None, qs=None):
+def crawl_articles(ids, update=False):
     from crawler.core import tasks_utils as utils
     from crawler.archiving.tasks import archive_articles
-    if ids and not qs:
+    from crawler.storing.tasks import crawl_resources
+    if len(ids) == 0:
+        logger.warning('crawl_articles called without articles ids')
+
+    if update:
         articles = utils.articles(ids)
-    else:
-        articles = qs
+        utils.reset_articles_states(articles)
+        # we delete previously detected of the given articles
+        utils.delete_tags_of(articles)
+        utils.delete_archived_urls_of(articles)
+        utils.delete_resources_of(articles)
 
-    utils.reset_articles_states(articles)
-
-    # we delete previously detected of the given articles
-    utils.delete_tags_of(articles)
-    utils.delete_archived_urls_of(articles)
-    utils.delete_resources_of(articles)
-
-    # we crawl (and create) the apprioriate preservation tags
-    crawl_preservation_tags(articles)
-    # now that our articles are tagged we can crawl & store the resources
-    # of the articles that must be stored
-    crawl_resources(utils.should_be_preserved(articles))
-    # Now that resources have been crawled we can stored
-    articles_to_archive = utils.should_be_archived(articles)
-    archive_articles.delay(
-        ids=utils.pickattr(articles_to_archive, 'pk')
-    )
+    return chain(
+        crawl_preservation_tags.s(),
+        crawl_resources.s(),
+        archive_articles.s()
+    ).apply_async([ids])
 
 @task(ignore_results=True)
-def crawl_feeds(feed_ids=None):
+def crawl_feeds(ids=None):
     """This task must be called with a list of feed ids.
     If none is given then it will lookup for active feeds (see
     `tasks_utils.active_feeds`). It will behave as following:
@@ -74,16 +68,18 @@ def crawl_feeds(feed_ids=None):
     """
     from crawler.core import tasks_utils as utils
     qs = None
-    if not feed_ids:
+    if not ids:
         qs = utils.active_feeds()
     else:
-        qs = utils.feeds(feed_ids)
+        qs = utils.feeds(ids)
 
     articles_urls = __feeds_urls(qs)
     qs.update(last_time_crawled=timezone.now())
     articles = utils.create_articles(articles_urls)
+    ids = utils.pickattr(articles, 'pk')
     # crawl created articles
-    crawl_articles(qs=articles)
+    logger.info('crawl_feed created %s articles\nIDS:%s' % (len(articles), ids))
+    return crawl_articles.apply_async([ids])
 
 def article_preservation_tags(article_id, article_url, *args, **kwargs):
     """
@@ -93,9 +89,12 @@ def article_preservation_tags(article_id, article_url, *args, **kwargs):
     [ title, metas ] = page_metas.scrape(article_url)
     return [ title , list(map(lambda meta: [article_id, meta], metas)) ]
 
-def crawl_preservation_tags(articles, *args, **kwargs):
-    from crawler.core.tasks_utils import set_articles_crawled, save_preservation_tags
+@task
+def crawl_preservation_tags(ids, *args, **kwargs):
+    from crawler.core.tasks_utils import articles as get_articles, set_articles_crawled, save_preservation_tags
     tags = list()
+    logger.debug('crawl_preservation_tags %s' % ids)
+    articles = get_articles(ids)
     for article in articles:
         [ title, article_tags] = article_preservation_tags(article.pk, article.url)
         article.title = title
@@ -103,27 +102,4 @@ def crawl_preservation_tags(articles, *args, **kwargs):
         tags = tags + article_tags
     tags = save_preservation_tags(tags)
     set_articles_crawled(articles)
-    return tags
-
-
-def scrape_article_resources(url):
-    scraper = HTMLScraper(url)
-    html_content = scraper.html_content()
-    html_resources = scraper.static_resources()
-    css_resources = scraper.css_resources()
-    # logger.info("sraped article")
-    return [ html_content, html_resources, css_resources ]
-
-def crawl_article_resources(article):
-    from crawler.constants import STATES
-    from crawler.core import tasks_utils as utils
-    article.preservation_state = STATES.PRESERVATION.PRESERVING
-    article.save()
-    [ html_content, resources, css_resources ] = scrape_article_resources(article.url)
-    utils.save_resources(article, html_content, resources, css_resources)
-
-@task
-def crawl_resources(articles):
-    for article in articles:
-        crawl_article_resources(article)
-
+    return ids

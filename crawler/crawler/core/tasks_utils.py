@@ -9,8 +9,6 @@ from django.core.files.base import ContentFile
 from crawler.constants import PRESERVATION_TAGS, STATES
 from crawler.utils import pickattr, mediaurl
 
-TXT_RESOURCES_PATTERN = re.compile('.+\.(html|js|css)$')
-
 logger = get_task_logger(__name__)
 
 def filter_not_needed_tags(qs):
@@ -20,19 +18,27 @@ def filter_not_needed_tags(qs):
             article__preservation_state=STATES.PRESERVATION.NO_PRESERVE
         )
 
-def should_be_preserved(articles):
-    return list(filter(lambda a: a.should_preserve, articles))
+def qs_or_ids(qs, f):
+    if not qs or len(qs) == 0: return qs
+    if type(qs[0]) == type(0):
+        qs  = f(qs)
+    return qs
 
-def should_be_archived(articles):
+def should_be_preserved(qs):
+    qs = qs_or_ids(qs, articles)
+    return list(filter(lambda a: a.should_preserve, qs))
+
+def should_be_archived(qs):
     from crawler.core.models import ReleaseDateTag, PriorityTag, Article
+    qs = qs_or_ids(qs, articles)
     rids = pickattr(
         ReleaseDateTag.objects.filter(
-            article__in=articles,
+            article__in=qs,
             value__lte=timezone.now()
         ), 'article_id')
     pids = pickattr(
         PriorityTag.objects.filter(
-            article__in=articles,
+            article__in=qs,
             value=True
         ), 'article_id')
     ids = list(set(rids + pids))
@@ -40,10 +46,7 @@ def should_be_archived(articles):
             pk__in=ids
         ).exclude(
             archiving_state=STATES.ARCHIVE.ARCHIVED
-        ).exclude(
-            preservation_state=STATES.PRESERVATION.NO_PRESERVE
         )
-
 def priority_articles():
     from crawler.core.models import PriorityTag
     tags = PriorityTag.objects.filter(value=True)
@@ -75,19 +78,6 @@ def articles(ids):
 def active_feeds():
     from crawler.core.models import Feed
     return Feed.objects.active_feeds()
-
-def crawl_feeds(feeds):
-    from crawler.scraping.tasks import crawl_feeds as _crawl
-    _crawl.delay(feed_ids=pickattr(feeds, 'pk'))
-
-def crawl_feed(feed):
-    return crawl_feeds([feed])
-
-def crawl_articles(articles):
-    from crawler.constants import STATES
-    from crawler.scraping.tasks import crawl_articles as _crawl
-    _crawl.delay(ids=pickattr(articles, 'pk'))
-
 
 def create_articles(articles_urls):
     from crawler.core.models import Article
@@ -134,15 +124,13 @@ def reset_articles_states(articles):
             a.archiving_state = None
             a.save()
 
+def delete_resources_of(articles):
+    return [ article.deletedir() for article in articles ]
+
 def delete_tags_of(articles):
     from crawler.core.models import PreservationTag
     tags = PreservationTag.objects.filter(article__in=articles)
-    [ tag.delete() for tag in tags]
-
-
-def delete_resources_of(articles):
-    from crawler.core.models import Resource
-    return [ r.delete() for r in Resource.objects.filter(article__in=articles) ]
+    return [ tag.delete() for tag in tags]
 
 def delete_archived_urls_of(articles):
     from crawler.archiving.models import ArchivedArticle
@@ -208,76 +196,5 @@ def save_preservation_tags(preservation_tags):
             tags.append(tag)
     return tags
 
-def as_hosted_content(content, resources):
-    def multiple_replace(txt, _dict):
-        rx = re.compile('|'.join(map(re.escape, _dict)))
-        def one_xlat(match):
-            return _dict[match.group(0)]
-        return rx.sub(one_xlat, txt)
 
-    if len(resources) > 0:
-        mapped_urls = {
-            resource.url: mediaurl(resource.resource_file.url) for resource in resources
-        }
-        content = multiple_replace(content, mapped_urls)
-    return bytes(content, 'utf-8')
 
-def create_or_update_resources(article, resources_dict, css_resources):
-    from crawler.core.resource_models import StyleResource
-    def get_resource_model(resource_type):
-        from crawler.core.resource_models import RESOURCE_TYPES_MAP
-        model = RESOURCE_TYPES_MAP.get(resource_type)
-        if not model:
-            raise ValueError(
-                 '%s is not a recognized resource type' % resource_type
-            )
-        return model
-    article_resources = list()
-
-    with transaction.atomic():
-        for ressource_type, resources in resources_dict.items():
-            ResourceModel = get_resource_model(ressource_type)
-            for resource_dict in resources:
-                resource = ResourceModel.objects.create(
-                    url=resource_dict['url'],
-                    article=article,
-                )
-                fn = resource_dict['filename']
-                content = resource_dict['content']
-                if isinstance(resource, StyleResource):
-                    content = content.decode()
-                    mapped_urls = {}
-                    sub_resources_dict = css_resources[resource.url]
-                    sub_resources_list = list()
-                    for subr_type, sub_resources in sub_resources_dict.items():
-                        SubResourceModel = get_resource_model(subr_type)
-                        for sr_dict in sub_resources:
-                            sub_resource = SubResourceModel.objects.create(
-                                url=sr_dict['url'],
-                                article=article,
-                            )
-                            sub_resource.set_content(sr_dict['filename'], sr_dict['content'])
-                            sub_resources_list.append(sub_resource)
-
-                    content = as_hosted_content(content, sub_resources_list)
-
-                resource.set_content(fn, content)
-                article_resources.append(resource)
-    return article_resources
-
-def save_resources(article, html_content, resources_dict, css_resources):
-    from crawler.core.models import HTMLResource
-    resources = create_or_update_resources(article, resources_dict, css_resources)
-    hosted_html = as_hosted_content(html_content.decode(), resources)
-
-    if article.has_html_content():
-        article.html_content().set_content('index.html', hosted_html)
-    else:
-        html_file = HTMLResource.objects.create(
-            use_unique_name=False,
-            use_resource_type_dir=False,
-            article=article)
-        html_file.set_content('index.html', hosted_html)
-
-    article.preservation_state = STATES.PRESERVATION.STORED
-    article.save()

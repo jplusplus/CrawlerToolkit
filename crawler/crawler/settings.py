@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crawler.core',
     'crawler.scraping',
+    'crawler.storing',
     'crawler.archiving',
     'crawler.dashboard',
     'debug_toolbar',

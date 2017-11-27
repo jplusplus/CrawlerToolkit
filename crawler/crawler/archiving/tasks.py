@@ -12,16 +12,22 @@ def notify_archived(articles):
 
 def archive_article(article):
     from crawler.constants import STATES
-    article.archiving_state=STATES.ARCHIVE.ARCHIVING
-    article.save()
     service_name = ''
     archived_url = ''
-    try:
+    # First case: we have no preservation, thus in case of
+    # preservation:priority meta tag.
+    article_url = article.url
+
+    # Second case: every article that has preservation needs thus other meta
+    # tags
+    if article.preservation_state != STATES.PRESERVATION.NO_PRESERVE:
         article_path = reverse('store:serve_article', kwargs={
             'feed_slug':article.feed.slug,
             'article_slug':article.slug
         })
         article_url = utils.absurl(article_path)
+
+    try:
         for service in archive.services(article_url):
             service_name = service.name()
             prev_archive = ArchivedArticle.objects.filter(
@@ -39,14 +45,15 @@ def archive_article(article):
     except Exception as e:
         article.archiving_state = STATES.ARCHIVE.ERROR
         logger.error("An error occured when archiving article", e)
-        logger.info("Article path: %s" % article_path)
         logger.info("Article absolute url: %s" % article_url)
         logger.info("Archived url (%s): %s" %  (service_name, archived_url))
 
     article.save()
+    return article.pk
 
 @task(ignore_results=True)
-def archive_articles(ids=None, qs=None):
+def archive_articles(ids=None, qs=None, skip_filter=False):
+    from crawler.constants import STATES
     from crawler.core import tasks_utils
     articles = list()
     if not qs:
@@ -54,8 +61,11 @@ def archive_articles(ids=None, qs=None):
     else:
         articles = qs
 
-    for article in articles:
-        archive_article(article)
+    if not skip_filter:
+        articles = tasks_utils.should_be_archived(articles)
+
+    articles.update(archiving_state=STATES.ARCHIVE.ARCHIVING)
+    return list(map(archive_article, articles))
 
 @task(ignore_results=True)
 def check_articles_to_archive():
@@ -69,5 +79,8 @@ def check_articles_to_archive():
     release_date_articles =  tasks_utils.release_date_articles()
 
     articles = notfound_articles + priority_articles + release_date_articles
-    archive_articles(list(set(tasks_utils.pickattr(articles, 'pk'))))
+    archive_articles.apply_async(
+        ids=list(set(tasks_utils.pickattr(articles, 'pk'))),
+        skip_filter=True
+    )
 

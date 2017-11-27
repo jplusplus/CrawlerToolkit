@@ -98,9 +98,6 @@ class HTMLScraper(object):
             sub_resources = self._crawl_subresources(resource['get_url'], sub_resource_urls)
             self._css_resources[resource['url']] = sub_resources
 
-    def resource_dir(self):
-        return '/'.join([ self.feed.slug, self.slug ])
-
     def html_content(self, pretty_print=False):
         return self._html_content
 

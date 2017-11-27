@@ -3,6 +3,9 @@ from django.conf import settings
 from urllib.parse import urlparse
 from pprint import pprint
 
+# Plain Old Python Object
+class POPO(object): pass
+
 def pickattr(qs, attrname):
     return list(map(lambda obj:getattr(obj, attrname), qs))
 

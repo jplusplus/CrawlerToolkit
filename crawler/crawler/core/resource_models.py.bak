@@ -1,5 +1,10 @@
-""" KEEPING FOR MIGRATION PURPOSE, DO NOT USE """
+from django.core.files.base import ContentFile
 from uuid import uuid4
+
+"""
+This file has been kept for migration purposes. Dont use it. Check
+`crawler.storing.tasks` and `crawler.core.models.Article` instead
+"""
 
 def resource_path(instance, filename):
     article = instance.article
@@ -20,3 +25,5 @@ def resource_path(instance, filename):
         path='/'.join(folders),
         fn=filename
     )
+
+

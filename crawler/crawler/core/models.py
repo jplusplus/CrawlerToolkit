@@ -1,20 +1,24 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from urllib.parse import urlparse
 import re
+from urllib.parse import urlparse
 
-from django.urls import reverse
+from django.contrib.contenttypes.fields import GenericRelation,GenericForeignKey
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
-from django.contrib.contenttypes.fields import GenericRelation,GenericForeignKey
+from django.core.files.storage import default_storage as storage
 from django.db import models
+from django.urls import reverse
+from django.utils import timezone
+
+from slugger import AutoSlugField
+
 from crawler import utils
 from crawler.constants import STATES
 from crawler.core import managers, receivers, validators, inherithance
 from crawler.core.tag_models import *
-from crawler.core.resource_models import *
-from slugger import AutoSlugField
+# from crawler.core.resource_models import *
 
 class Feed(models.Model):
     objects = managers.FeedManager()
@@ -67,11 +71,34 @@ class Article(models.Model):
             blank=True,
             null=True)
 
-    def html_content(self):
-        return HTMLResource.objects.get(article_id=self.pk)
+    def resources_dir(self):
+        return '/'.join([ self.feed.slug, self.slug ])
 
-    def has_html_content(self):
-        return HTMLResource.objects.filter(article_id=self.pk).count() > 0;
+    def resource_path(self, fn, resource_type=None, use_tdir=True, uniq_fn=True):
+        resources_dir = self.resources_dir()
+        if use_tdir:
+            if resource_type != None:
+                resources_dir += '/{}s'.format(resource_type)
+            else:
+                raise Error("Must set resource_type argument")
+        if uniq_fn:
+            ext = filename.split('.')[-1]
+            fid = str(uuid4())
+            filename = "{}.{}".format(fid, ext)
+
+        return "{path}/{fn}".format(path=resources_dir, fn=fn)
+
+    def index_path(self):
+        return self.resource_path('index.html', use_tdir=False, uniq_fn=False)
+
+    def index_resource(self):
+        return storage.open(self.index_path(), 'r')
+
+    def has_index_resource(self):
+        return storage.exists(self.index_path())
+
+    def deletedir(self):
+        return storage.deletedir(self.resources_dir())
 
     @property
     def serve_url(self):
@@ -81,12 +108,20 @@ class Article(models.Model):
         }
         path = reverse('store:serve_article', kwargs=kwargs)
         return utils.absurl(path)
+
     @property
     def source(self):
         return self.feed.name
 
     @property
     def should_preserve(self):
+        prio = PriorityTag.objects.filter(article=self, value=True)
+        if prio.count() > 0:
+            return False
+        rdtag = ReleaseDateTag.objects.filter(
+            article=self,
+            value__lte=timezone.now()
+        )
         return any(
             map(
                 lambda tag: tag.should_preserve,

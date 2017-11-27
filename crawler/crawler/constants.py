@@ -1,5 +1,5 @@
+from crawler.utils import POPO
 # Plain Old Python Object
-class POPO(object): pass
 
 class States(object):
     def __init__(self, states, *args, **kwargs):
@@ -43,13 +43,19 @@ PRESERVATION_TAGS.PRIORITY = 'preservation:priority'
 PRESERVATION_TAGS.RELEASE_DATE = 'preservation:release_date'
 PRESERVATION_TAGS.NOT_FOUND_ONLY = 'preservation:notfound_only'
 
-
 RESOURCE_TYPES = POPO()
 RESOURCE_TYPES.SCRIPT = 'script'
 RESOURCE_TYPES.STYLE = 'stylesheet'
 RESOURCE_TYPES.IMAGE = 'image'
 RESOURCE_TYPES.HTML = 'html'
 RESOURCE_TYPES.FONT = 'font'
+
+t = RESOURCE_TYPES
+ACCEPTED_EXTENSIONS_MAP = {
+    t.SCRIPT: ['js'],
+    t.STYLE: ['css'],
+    t.IMAGE: ['png', 'jpeg', 'jpg', 'svg', 'gif'],
+}
 
 FEED_TYPES = POPO()
 FEED_TYPES.TWITTER = 'TWITTER'
