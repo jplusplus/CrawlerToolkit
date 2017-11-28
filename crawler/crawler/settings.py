@@ -159,16 +159,16 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_BROKER_URL = 'redis://localhost:3000'
 CELERY_RESULT_BACKEND = 'redis://localhost:3000'
-CELERY_REDIS_MAX_CONNECTIONS = 20
+CELERY_REDIS_MAX_CONNECTIONS = 5
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULE = {
     'crawl-feeds': {
         'task': 'crawler.scraping.tasks.crawl_feeds',
-        'schedule': crontab(minute='*/10')
+        'schedule': crontab(minute='*/30')
     },
     'archive-articles': {
         'task': 'crawler.archiving.tasks.check_articles_to_archive',
-        'schedule': crontab(minute='*/20')
+        'schedule': crontab(minute='*/30')
     }
 }
 

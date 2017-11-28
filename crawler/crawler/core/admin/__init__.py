@@ -107,7 +107,6 @@ class ArticleAdmin(admin.ModelAdmin):
     def get_preservation_tags(self, obj):
         def get_tag(tag):
             ttype = preservation_tag_type(tag.__class__)
-            print('get_tag %s-%s' % (tag.__class__, ttype))
             ttype = ttype.replace('preservation:', '')
             if tag.is_release_date():
                 if tag.value:
