@@ -71,6 +71,12 @@ class Article(models.Model):
             blank=True,
             null=True)
 
+    def preservation_tags(self):
+        qs = list(NotFoundOnlyTag.objects.filter(article=self))
+        qs = qs + list(ReleaseDateTag.objects.filter(article=self))
+        qs = qs + list(PriorityTag.objects.filter(article=self))
+        return qs
+
     def resources_dir(self):
         return '/'.join([ self.feed.slug, self.slug ])
 

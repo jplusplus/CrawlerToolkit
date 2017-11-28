@@ -7,6 +7,15 @@ class PreservationTag(models.Model):
         abstract = True
     article = models.ForeignKey('Article')
 
+    def is_priority(self):
+        return isinstance(self, PriorityTag)
+
+    def is_release_date(self):
+        return isinstance(self, ReleaseDateTag)
+
+    def is_notfound_only(self):
+        return isinstance(self, NotFoundOnlyTag)
+
 class PriorityTag(PreservationTag):
     value = models.BooleanField()
     @property

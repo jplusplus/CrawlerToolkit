@@ -1,4 +1,5 @@
 from django.contrib import admin
+from crawler.utils import pickattr
 from crawler.constants import STATES, PRESERVATION_TAGS
 
 class ShouldPreserveFilter(admin.SimpleListFilter):
@@ -51,6 +52,7 @@ class PreservationTypeFilter(admin.SimpleListFilter):
         if value:
             PreservationModel = preservation_tag_model(value)
             tag_qs = PreservationModel.objects.filter(article__in=queryset)
-            queryset = queryset.filter(preservation_tags__in=tag_qs)
+            articles_ids = list(set(pickattr(tag_qs, 'article_id')))
+            queryset = queryset.filter(pk__in=articles_ids)
 
         return queryset

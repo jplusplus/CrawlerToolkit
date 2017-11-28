@@ -54,7 +54,6 @@ class ArticleAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super(ArticleAdmin, self).get_queryset(request)
         qs = qs.prefetch_related(
-            'preservation_tags',
             'archived_urls',
             'feed'
         )
@@ -107,8 +106,8 @@ class ArticleAdmin(admin.ModelAdmin):
 
     def get_preservation_tags(self, obj):
         def get_tag(tag):
-            tag = tag.as_leaf_class()
             ttype = preservation_tag_type(tag.__class__)
+            print('get_tag %s-%s' % (tag.__class__, ttype))
             ttype = ttype.replace('preservation:', '')
             if tag.is_release_date():
                 if tag.value:
@@ -123,8 +122,8 @@ class ArticleAdmin(admin.ModelAdmin):
                     '<b class="bold">{value}</b>'
                 '</div>'
             ).format(type=ttype,value=value)
-        preservation_tags = obj.preservation_tags.all()
-        if preservation_tags.count() > 0:
+        preservation_tags = obj.preservation_tags()
+        if len(preservation_tags) > 0:
             return '&nbsp;'.join(map(get_tag, preservation_tags))
         else:
             if len(obj.preservation_state) > 0:
