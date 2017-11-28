@@ -129,10 +129,9 @@ def delete_resources_of(articles):
 
 def delete_tags_of(articles):
     from crawler.core import models
-    tags = models.PriorityTag.objects.filter(article__in=articles)
-    tags = tags.union(models.ReleaseDateTag.objects.filter(article__in=articles))
-    tags = tags.union(models.NotFoundOnlyTag.objects.filter(article__in=articles))
-
+    tags = list(models.PriorityTag.objects.filter(article__in=articles))
+    tags = tags + list(models.ReleaseDateTag.objects.filter(article__in=articles))
+    tags = tags + list(models.NotFoundOnlyTag.objects.filter(article__in=articles))
     return [ tag.delete() for tag in tags ]
 
 def delete_archived_urls_of(articles):
