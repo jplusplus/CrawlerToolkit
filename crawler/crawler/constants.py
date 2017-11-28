@@ -5,6 +5,8 @@ class States(object):
     def __init__(self, states, *args, **kwargs):
         self.labels_dict = dict()
         for (name, label) in states:
+            if not name:
+                name = 'None'
             self.labels_dict[name] = label
             setattr(self, name, name)
         self.states = states;
@@ -32,6 +34,7 @@ PRESERVATION_STATES = States((
 STATES.PRESERVATION = PRESERVATION_STATES
 
 STATES.ARCHIVE = States((
+    (None, 'Not archived'),
     ('ARCHIVED', 'Archived'),
     ('ARCHIVING', 'Archiving'),
     ('ERROR', 'An error occured'),
