@@ -2,20 +2,10 @@ from crawler.constants import PRESERVATION_TAGS
 from crawler.core import inherithance
 from django.db import models
 
-class PreservationTag(inherithance.ParentModel):
-    article = models.ForeignKey('Article', related_name='preservation_tags')
-    @property
-    def should_preserve(self):
-        return self.as_leaf_class().should_preserve
-
-    def _is_type(self, model_type):
-        return isinstance(self.as_leaf_class(), model_type)
-
-    def is_release_date(self): return self._is_type(ReleaseDateTag)
-
-    def is_priority(self): return self._is_type(PriorityTag)
-
-    def is_notfound_only(self): return self._is_type(NotFoundOnlyTag)
+class PreservationTag(models.Model):
+    class Meta:
+        abstract = True
+    article = models.ForeignKey('Article')
 
 class PriorityTag(PreservationTag):
     value = models.BooleanField()

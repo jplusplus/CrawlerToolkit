@@ -122,11 +122,10 @@ class Article(models.Model):
             article=self,
             value__lte=timezone.now()
         )
-        return any(
-            map(
-                lambda tag: tag.should_preserve,
-                self.preservation_tags.all()
-            )
+        nftag = NotFoundOnlyTag.objects.filter(
+            article=self,
+            value=True
         )
+        return rdtag.exists() or nftag.exists()
 
 receivers.init()
