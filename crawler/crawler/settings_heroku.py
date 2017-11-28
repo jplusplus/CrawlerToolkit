@@ -3,7 +3,8 @@ import dj_database_url
 
 db_from_env = dj_database_url.config(conn_max_age=500)
 
-DEBUG = False
+DEBUG = os.getenv('DEBUG', 0)
+DEBUG = DEBUG != 0
 
 INSTALLED_APPS = INSTALLED_APPS + ['storages',]
 
