@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-<loc>http://pbellon.github.io/CrawlerToolkit/jekyll/update/welcome-to-jekyll/</loc>
+<loc>https://pbellon.github.io/CrawlerToolkit/jekyll/update/welcome-to-jekyll/</loc>
 <lastmod>2017-10-23T18:01:53+02:00</lastmod>
 </url>
 <url>
-<loc>http://pbellon.github.io/CrawlerToolkit/jekyll/preservation/Second-post-to-archive/</loc>
+<loc>https://pbellon.github.io/CrawlerToolkit/jekyll/preservation/Second-post-to-archive/</loc>
 <lastmod>2017-10-30T09:01:53+01:00</lastmod>
 </url>
 <url>
-<loc>http://pbellon.github.io/CrawlerToolkit/jekyll/preservation/release-date-test/</loc>
+<loc>https://pbellon.github.io/CrawlerToolkit/jekyll/preservation/release-date-test/</loc>
 <lastmod>2017-10-30T09:01:53+01:00</lastmod>
 </url>
 <url>
-<loc>http://pbellon.github.io/CrawlerToolkit/_pages/404/</loc>
+<loc>https://pbellon.github.io/CrawlerToolkit/_pages/404/</loc>
 </url>
 <url>
-<loc>http://pbellon.github.io/CrawlerToolkit/about/</loc>
+<loc>https://pbellon.github.io/CrawlerToolkit/about/</loc>
 </url>
 <url>
-<loc>http://pbellon.github.io/CrawlerToolkit/</loc>
+<loc>https://pbellon.github.io/CrawlerToolkit/</loc>
 </url>
 </urlset>
