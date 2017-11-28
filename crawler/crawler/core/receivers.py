@@ -1,11 +1,11 @@
 """
 Signals receivers
 """
-from crawler.core import tasks_utils
 
 def trigger_feed_crawl(sender, instance, created=False, *args, **kwargs):
+    from crawler.scraping.tasks import crawl_feeds
     if created:
-        tasks_utils.crawl_feed(instance)
+        crawl_feeds.delay([instance.pk])
 
 def delete_resources(sender, instance, *args, **kwargs):
     instance.deletedir()

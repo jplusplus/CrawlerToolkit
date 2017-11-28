@@ -1,4 +1,5 @@
 from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 import re
 
 twitter_patt = re.compile('https://twitter.com/\w+$')
