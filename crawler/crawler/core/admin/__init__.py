@@ -8,7 +8,7 @@ from material.frontend.models import Module
 from crawler import utils
 from crawler.constants import STATES
 from crawler.core.models import Feed, Article
-from crawler.core.tag_models import *
+from crawler.scraping.models import preservation_tag_type
 from crawler.archiving.admin import InlineArchivedArticle
 from urllib.parse import urlparse
 from django.utils.dateformat import format

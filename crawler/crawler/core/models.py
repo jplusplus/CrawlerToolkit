@@ -17,8 +17,7 @@ from slugger import AutoSlugField
 from crawler import utils
 from crawler.constants import STATES
 from crawler.core import managers, receivers, validators, inherithance
-from crawler.core.tag_models import *
-# from crawler.core.resource_models import *
+from crawler.scraping.models import PriorityTag, NotFoundOnlyTag, ReleaseDateTag
 
 class Feed(models.Model):
     objects = managers.FeedManager()

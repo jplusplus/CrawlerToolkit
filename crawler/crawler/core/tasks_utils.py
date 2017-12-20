@@ -29,7 +29,7 @@ def should_be_preserved(qs):
     return list(filter(lambda a: a.should_preserve, qs))
 
 def should_be_archived(qs):
-    from crawler.core.models import ReleaseDateTag, PriorityTag, Article
+    from crawler.scraping.models import ReleaseDateTag, PriorityTag, Article
     qs = qs_or_ids(qs, articles)
     rids = pickattr(
         ReleaseDateTag.objects.filter(
@@ -48,7 +48,7 @@ def should_be_archived(qs):
             archiving_state=STATES.ARCHIVE.ARCHIVED
         )
 def priority_articles():
-    from crawler.core.models import PriorityTag
+    from crawler.scraping.models import PriorityTag
     tags = PriorityTag.objects.filter(value=True)
     tags = filter_not_needed_tags(tags)
     return pickattr(tags, 'article')
@@ -128,7 +128,7 @@ def delete_resources_of(articles):
     return [ article.deletedir() for article in articles ]
 
 def delete_tags_of(articles):
-    from crawler.core import models
+    from crawler.scraping import models
     tags = list(models.PriorityTag.objects.filter(article__in=articles))
     tags = tags + list(models.ReleaseDateTag.objects.filter(article__in=articles))
     tags = tags + list(models.NotFoundOnlyTag.objects.filter(article__in=articles))
@@ -149,7 +149,8 @@ def set_articles_crawled(articles):
         article.save()
 
 def save_preservation_tags(preservation_tags):
-    from crawler.core.models import Article, PriorityTag, ReleaseDateTag, NotFoundOnlyTag
+    from crawler.core.models import Article
+    from crawler.scraping.models import PriorityTag, ReleaseDateTag, NotFoundOnlyTag
 
     date_pattern = re.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}")
     def strtobool(original_value):
