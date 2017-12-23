@@ -52,17 +52,25 @@ def archive_article(article):
     return article.pk
 
 @task(ignore_results=True)
-def archive_articles(ids=None, qs=None, skip_filter=False):
+def archive_articles(ids=None, skip_filter=False):
+    """
+    Archive the given articles by id. If not set, it will filter the articles
+    by archive status (based on preservation tags information, see
+    `core.managers.ArticleManager`.
+
+    Params:
+        - ids, list of articles ids
+    """
     from crawler.constants import STATES
     from crawler.core import tasks_utils
-    articles = list()
-    if not qs:
-        articles = tasks_utils.articles(ids)
+
+    if not ids:
+        articles = Articles.objects.all()
     else:
-        articles = qs
+        articles = tasks_utils.articles(ids)
 
     if not skip_filter:
-        articles = tasks_utils.should_be_archived(articles)
+        articles = articles.should_be_archived()
 
     articles.update(archiving_state=STATES.ARCHIVE.ARCHIVING)
     return list(map(archive_article, articles))
@@ -70,17 +78,18 @@ def archive_articles(ids=None, qs=None, skip_filter=False):
 @task(ignore_results=True)
 def check_articles_to_archive():
     from crawler.core import tasks_utils
-    articles = list()
-    notfound_articles = detect_notfound(
-        tasks_utils.notfound_only_articles()
-    )
-    # logger.info('Detected %s not found articles' % len(notfound_articles))
-    priority_articles = tasks_utils.priority_articles()
-    release_date_articles =  tasks_utils.release_date_articles()
+    articles = Articles.objects.filter_not_needed()
 
-    articles = notfound_articles + priority_articles + release_date_articles
+    archive_articles = detect_notfound(
+        articles.not_found_only_tagged()
+    ).union(
+        articles.release_date_tagged()
+    ).union(
+        articles.priority_tagged()
+    )
+
     archive_articles.apply_async(
-        ids=list(set(tasks_utils.pickattr(articles, 'pk'))),
+        ids=list(set(archive_articles.values_list('pk'))),
         skip_filter=True
     )
 

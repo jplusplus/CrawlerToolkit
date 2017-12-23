@@ -11,59 +11,11 @@ from crawler.utils import pickattr, mediaurl
 
 logger = get_task_logger(__name__)
 
-def filter_not_needed_tags(qs):
-    return qs.exclude(
-            article__archiving_state=STATES.ARCHIVE.ARCHIVED
-        ).exclude(
-            article__preservation_state=STATES.PRESERVATION.NO_PRESERVE
-        )
-
 def qs_or_ids(qs, f):
     if not qs or len(qs) == 0: return qs
     if type(qs[0]) == type(0):
         qs  = f(qs)
     return qs
-
-def should_be_preserved(qs):
-    qs = qs_or_ids(qs, articles)
-    return list(filter(lambda a: a.should_preserve, qs))
-
-def should_be_archived(qs):
-    from crawler.scraping.models import ReleaseDateTag, PriorityTag, Article
-    qs = qs_or_ids(qs, articles)
-    rids = pickattr(
-        ReleaseDateTag.objects.filter(
-            article__in=qs,
-            value__lte=timezone.now()
-        ), 'article_id')
-    pids = pickattr(
-        PriorityTag.objects.filter(
-            article__in=qs,
-            value=True
-        ), 'article_id')
-    ids = list(set(rids + pids))
-    return Article.objects.filter(
-            pk__in=ids
-        ).exclude(
-            archiving_state=STATES.ARCHIVE.ARCHIVED
-        )
-def priority_articles():
-    from crawler.scraping.models import PriorityTag
-    tags = PriorityTag.objects.filter(value=True)
-    tags = filter_not_needed_tags(tags)
-    return pickattr(tags, 'article')
-
-def notfound_only_articles():
-    from crawler.core.models import NotFoundOnlyTag
-    tags = NotFoundOnlyTag.objects.filter(value=True)
-    tags = filter_not_needed_tags(tags)
-    return pickattr(tags, 'article')
-
-def release_date_articles():
-    from crawler.core.models import ReleaseDateTag
-    tags = ReleaseDateTag.objects.filter(value__lte=timezone.now())
-    tags = filter_not_needed_tags(tags)
-    return pickattr(tags, 'article')
 
 def filter_by_id(Model,ids):return Model.objects.filter(pk__in=ids)
 

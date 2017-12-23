@@ -101,9 +101,7 @@ def crawl_resources(ids):
     from crawler.utils import pickattr
     from crawler.core import tasks_utils
     from crawler.constants import STATES
-    articles = tasks_utils.articles(
-        pickattr(tasks_utils.should_be_preserved(ids), 'pk')
-    )
+    articles = tasks_utils.articles(ids).should_be_preserved()
     articles.update(preservation_state=STATES.PRESERVATION.PRESERVING)
     map(crawl_article_resources, articles)
     return ids

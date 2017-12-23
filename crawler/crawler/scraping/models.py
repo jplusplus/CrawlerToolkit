@@ -1,6 +1,7 @@
 from django.db import models
 from crawler.constants import PRESERVATION_TAGS
 from crawler.core import inherithance
+from crawler.scraping import managers
 
 class PreservationTag(models.Model):
     class Meta:
@@ -18,18 +19,21 @@ class PreservationTag(models.Model):
 
 class PriorityTag(PreservationTag):
     value = models.BooleanField()
+    objects = managers.PriorityTagManager()
     @property
     def should_preserve(self):
         return self.value
 
 class ReleaseDateTag(PreservationTag):
     value = models.DateTimeField(null=True)
+    objects = managers.ReleaseDateTagManager()
     @property
     def should_preserve(self):
         return self.value is not None
 
 class NotFoundOnlyTag(PreservationTag):
     value = models.BooleanField()
+    objects = managers.NotFoundOnlyTagManager()
     @property
     def should_preserve(self):
         return self.value
