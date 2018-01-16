@@ -16,7 +16,7 @@ from slugger import AutoSlugField
 
 from crawler import utils
 from crawler.constants import STATES
-from crawler.core import managers, receivers, validators, inherithance
+from crawler.core import managers, receivers, validators
 from crawler.scraping.models import PriorityTag, NotFoundOnlyTag, ReleaseDateTag
 
 class Feed(models.Model):
@@ -71,9 +71,12 @@ class Article(models.Model):
             null=True)
 
     def preservation_tags(self):
-        qs = list(NotFoundOnlyTag.objects.filter(article=self))
-        qs = qs + list(ReleaseDateTag.objects.filter(article=self))
-        qs = qs + list(PriorityTag.objects.filter(article=self))
+        qs = NotFoundOnlyTag.objects.filter(article=self)
+        qs = qs.union(
+            ReleaseDateTag.objects.filter(article=self)
+        ).union(
+            PriorityTag.objects.filter(article=self)
+        )
         return qs
 
     def resources_dir(self):
@@ -104,7 +107,15 @@ class Article(models.Model):
 
     def deletedir(self):
         return storage.deletedir(self.resources_dir())
-    
+
+    def set_crawled(self):
+        self.crawled_at = timezone.now()
+        if not self.should_preserve:
+            self.preservation_state = STATES.PRESERVATION.NO_PRESERVE
+        elif self.preservation_state != STATES.PRESERVATION.STORED:
+            self.preservation_state = STATES.PRESERVATION.PRESERVE
+        return self
+
     def set_stored(self):
         self.preservation_state = STATES.PRESERVATION.STORED
 
