@@ -5,6 +5,7 @@
 *.swm
 *.swo
 *.bak
+.coverage
 dump.rdb
 Gemfile.lock
 test-site/.sass-cache
