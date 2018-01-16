@@ -31,8 +31,6 @@ def mediaurl(path):
 
     return url
 
-
-
 def modelcounts(sort=False, reverse=True):
     count = lambda model: (
         model, model.objects.count() if getattr(model, 'objects', None) else 0
@@ -46,6 +44,13 @@ def modelcounts(sort=False, reverse=True):
 
     return counts
 
+def strtobool(original_value):
+    value = original_value.strip()
+    if value == 'true':
+        value = True
+    else:
+        value = False
+    return value
 
 def print_counts(**kwargs):
     todict = lambda c: {

@@ -37,19 +37,19 @@ def __feeds_urls(feeds):
 
 @task(ignore_results=True)
 def crawl_articles(ids, update=False):
-    from crawler.core import tasks_utils as utils
+    from crawler.core.models import Article
     from crawler.archiving.tasks import archive_articles
     from crawler.storing.tasks import crawl_resources
     if len(ids) == 0:
         logger.warning('crawl_articles called without articles ids')
 
     if update:
-        articles = utils.articles(ids)
-        utils.reset_articles_states(articles)
+        articles = Article.objects.ids(ids)
+        articles.reset_states()
         # we delete previously detected of the given articles
-        utils.delete_tags_of(articles)
-        utils.delete_archived_urls_of(articles)
-        utils.delete_resources_of(articles)
+        articles.delete_tags()
+        articles.delete_archived_urls()
+        articles.delete_resources()
 
     return chain(
         crawl_preservation_tags.s(),
@@ -66,16 +66,16 @@ def crawl_feeds(ids=None):
         the needed links. For every created article (link), look
         for preservation_tags.
     """
-    from crawler.core import tasks_utils as utils
+    from crawler.core.models import Article
+    from crawler.scraping.models import Feed
     qs = None
     if not ids:
-        qs = utils.active_feeds()
+        qs = Feed.objects.active()
     else:
-        qs = utils.feeds(ids)
+        qs = Feed.objects.ids(ids)
 
-    articles_urls = __feeds_urls(qs)
-    qs.update(last_time_crawled=timezone.now())
-    articles = utils.create_articles(articles_urls)
+    urls = __feeds_urls(qs)
+    articles = Article.objects.save_urls(urls)
     ids = utils.pickattr(articles, 'pk')
     # crawl created articles
     logger.info('crawl_feed created %s articles\nIDS:%s' % (len(articles), ids))
@@ -87,19 +87,24 @@ def article_preservation_tags(article_id, article_url, *args, **kwargs):
     are any).
     """
     [ title, metas ] = page_metas.scrape(article_url)
-    return [ title , list(map(lambda meta: [article_id, meta], metas)) ]
+    return [
+        title,
+        list(map(lambda meta: [article_id, meta], metas))
+    ]
 
 @task
 def crawl_preservation_tags(ids, *args, **kwargs):
-    from crawler.core.tasks_utils import articles as get_articles, set_articles_crawled, save_preservation_tags
+    from crawler.core.models import Article
+    from crawler.scraping.utils import save_preservation_tags
     tags = list()
     logger.debug('crawl_preservation_tags %s' % ids)
-    articles = get_articles(ids)
+    articles = Article.objects.ids(ids)
     for article in articles:
         [ title, article_tags] = article_preservation_tags(article.pk, article.url)
         article.title = title
         article.save()
         tags = tags + article_tags
+
     tags = save_preservation_tags(tags)
-    set_articles_crawled(articles)
+    articles.set_crawled()
     return ids

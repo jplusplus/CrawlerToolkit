@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.test import TestCase
 
 from crawler.core.models import Feed, Article
-from crawler.core.tasks_utils import active_feeds, save_feeds_urls
+from crawler.core.tasks_utils import save_feeds_urls
 
 # Create your tests here.
 
@@ -24,16 +24,20 @@ class FeedsTestCase(TestCase):
         Article.objects.create(url='http://fakeurl.com/1/', feed=self.active_feed)
 
     def test_active_feeds(self):
-        _active_feeds = active_feeds()
+        active_feeds = Feed.objects.active_feeds()
         self.assertEqual(_active_feeds.count(), 1)
         self.assertEqual(_active_feeds.first().url, self.active_feed.url)
 
-    def test_save_feeds_urls(self):
+    def test_save_urls(self):
+        """
+        Test if we can create new articles
+        It should create only non-existing URLs
+        """
         urls = [
             (self.active_feed.pk, 'http://fakeurl.com/1/'),
             (self.active_feed.pk, 'http://fakeurl.com/2/'),
             (self.active_feed.pk, 'http://fakeurl.com/2/'),
             (self.active_feed.pk, 'http://fakeurl.com/3/'),
         ]
-        saved_urls = save_feeds_urls(urls)
+        saved_urls = Article.objects.save_urls(urls)
         self.assertEqual(len(saved_urls), 2)

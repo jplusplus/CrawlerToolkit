@@ -104,6 +104,9 @@ class Article(models.Model):
 
     def deletedir(self):
         return storage.deletedir(self.resources_dir())
+    
+    def set_stored(self):
+        self.preservation_state = STATES.PRESERVATION.STORED
 
     @property
     def serve_url(self):
