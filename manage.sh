@@ -33,6 +33,13 @@ django () {
   setup_env
   ./crawler/manage.py $@
 }
+dj_test() {
+  django test $@
+}
+
+test(){
+  dj_test crawler
+}
 
 shell() {
   django shell
