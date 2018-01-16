@@ -77,9 +77,15 @@ def archive_articles(ids=None, skip_filter=False):
 
 @task(ignore_results=True)
 def check_articles_to_archive():
-    from crawler.core import tasks_utils
-    articles = Articles.objects.filter_not_needed()
+    """
+    Task to detect if some articles are needing archiving (when 404, when
+    release date is passed or when tagged with priority=true).
 
+    """
+    from crawler.core.models import Article
+    # Filter articles that can't be archived
+    articles = Article.objects.all().can_be_archived()
+    # queryset of articles needing immediate archiving
     archive_articles = detect_notfound(
         articles.not_found_only_tagged()
     ).union(
