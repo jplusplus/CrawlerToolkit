@@ -27,7 +27,7 @@ class ArticleManager(models.Manager, ByIdsMixin):
         clashing_urls = self.clashing_urls(
             list(map(lambda _: _[1], urls))
         )
-          
+ 
         with transaction.atomic():
             created = list(
                 map(
@@ -59,9 +59,9 @@ class ArticleManager(models.Manager, ByIdsMixin):
                 article.preservation_state = STATES.PRESERVATION.PRESERVE
             article.save()
 
-    def reset_states(self)
+    def reset_states(self):
         self.get_queryset().update(
-            archiving_state=None, 
+            archiving_state=None,
             preservation_state=''
         )
 
