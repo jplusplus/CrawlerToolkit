@@ -61,18 +61,11 @@ def archive_articles(ids=None, skip_filter=False):
     Params:
         - ids, list of articles ids
     """
-    from crawler.constants import STATES
-    from crawler.core import tasks_utils
-
-    if not ids:
-        articles = Articles.objects.all()
-    else:
-        articles = tasks_utils.articles(ids)
-
+    from crawler.core.models import Article
+    articles = Article.objects.ids(ids)
     if not skip_filter:
         articles = articles.should_be_archived()
-
-    articles.update(archiving_state=STATES.ARCHIVE.ARCHIVING)
+    articles.set_archiving()
     return list(map(archive_article, articles))
 
 @task(ignore_results=True)
@@ -84,7 +77,7 @@ def check_articles_to_archive():
     """
     from crawler.core.models import Article
     # Filter articles that can't be archived
-    articles = Article.objects.all().can_be_archived()
+    articles = Article.objects.can_be_archived()
     # queryset of articles needing immediate archiving
     archive_articles = detect_notfound(
         articles.not_found_only_tagged()

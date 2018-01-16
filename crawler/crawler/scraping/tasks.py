@@ -5,9 +5,11 @@ from celery.utils.log import get_task_logger
 from celery.contrib import rdb
 
 from celery.decorators import task
+from crawler.utils import pickattr
 from crawler.constants import FEED_TYPES
 from crawler.celery import app
 from celery import chain
+
 # Scrapers 
 from .scrapers import twitter, xml, page_metas
 
@@ -79,7 +81,7 @@ def crawl_feeds(ids=None):
 
     urls = __feeds_urls(qs)
     articles = Article.objects.save_urls(urls)
-    ids = utils.pickattr(articles, 'pk')
+    ids = pickattr(articles, 'pk')
     # crawl created articles
     logger.info('crawl_feed created %s articles\nIDS:%s' % (len(articles), ids))
     return crawl_articles.apply_async([ids])

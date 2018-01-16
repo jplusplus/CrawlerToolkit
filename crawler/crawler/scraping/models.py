@@ -1,6 +1,5 @@
 from django.db import models
 from crawler.constants import PRESERVATION_TAGS
-from crawler.core import inherithance
 from crawler.scraping import managers
 
 class PreservationTag(models.Model):
