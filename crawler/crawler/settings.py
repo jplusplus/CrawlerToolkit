@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'crawler.archiving',
     'crawler.dashboard',
     'debug_toolbar',
+    'django_nose',
 ]
 
 MIDDLEWARE = [
@@ -68,6 +69,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+# Use nose to run all tests
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+# Tell nose to measure coverage on the 'foo' and 'bar' apps
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=crawler',
 ]
 
 ROOT_URLCONF = 'crawler.urls'
