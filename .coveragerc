@@ -1,9 +1,12 @@
-[run]
-omit =
-  # all admin files
-  */admin.py
-
 [report]
+omit=
+  crawler/crawler/celery.py
+  crawler/crawler/settings*
+  crawler/crawler/constants.py
+  crawler/crawler/*/admin.py
+  crawler/crawler/*/admin/*
+  crawler/crawler/*/migrations/*
+
 exclude_lines =
     pragma: nocover
     def __repr__

@@ -59,15 +59,18 @@ def crawl_articles(ids, update=False):
 
 @task(ignore_results=True)
 def crawl_feeds(ids=None):
-    """This task must be called with a list of feed ids.
+    """
+    This task must be called with a list of feed ids.
     If none is given then it will lookup for active feeds (see
-    `tasks_utils.active_feeds`). It will behave as following:
+    `crawler.core.managers.FeedManager.active`).
+
+    It will behave as following:
         for every feed given get latest links. If needed create
         the needed links. For every created article (link), look
         for preservation_tags.
     """
-    from crawler.core.models import Article
-    from crawler.scraping.models import Feed
+    from crawler.core.models import Article, Feed
+
     qs = None
     if not ids:
         qs = Feed.objects.active()
