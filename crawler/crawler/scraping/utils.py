@@ -3,7 +3,7 @@ import re
 from django.utils import timezone
 from crawler.scraping.models import PriorityTag, ReleaseDateTag, NotFoundOnlyTag
 from crawler.utils import strtobool
-import PRESERVATION_TAGS from crawler.constants
+from crawler.constants import PRESERVATION_TAGS
 
 date_pattern = re.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}")
 

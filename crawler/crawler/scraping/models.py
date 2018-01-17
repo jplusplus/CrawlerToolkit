@@ -1,6 +1,7 @@
 from django.db import models
 from crawler.constants import PRESERVATION_TAGS
-from crawler.scraping import managers
+from crawler.scraping import querysets
+
 
 class PreservationTag(models.Model):
     class Meta:
@@ -16,26 +17,43 @@ class PreservationTag(models.Model):
     def is_notfound_only(self):
         return isinstance(self, NotFoundOnlyTag)
 
+class PreservationTagManager(models.Manager):
+    def queryset_class(self):
+        return MODEL_QUERYSET_MAP[self.model]
+
+    def get_queryset(self):
+        QuerySet = self.queryset_class()
+        return QuerySet(self.model)
+
 class PriorityTag(PreservationTag):
     value = models.BooleanField()
-    objects = managers.PriorityTagManager()
+    objects = PreservationTagManager()
     @property
     def should_preserve(self):
         return self.value
 
 class ReleaseDateTag(PreservationTag):
     value = models.DateTimeField(null=True)
-    objects = managers.ReleaseDateTagManager()
+    objects = PreservationTagManager()
+
     @property
     def should_preserve(self):
         return self.value is not None
 
 class NotFoundOnlyTag(PreservationTag):
     value = models.BooleanField()
-    objects = managers.NotFoundOnlyTagManager()
+    objects = PreservationTagManager()
     @property
     def should_preserve(self):
         return self.value
+
+MODEL_QUERYSET_MAP = {
+    PriorityTag: querysets.PriorityTagQuerySet,
+    ReleaseDateTag: querysets.ReleaseDateTagQuerySet,
+    NotFoundOnlyTag: querysets.NotFoundOnlyTagQuerySet
+}
+
+
 
 PRESERVATION_TAGS_MAP = {
     PRESERVATION_TAGS.PRIORITY: PriorityTag,
