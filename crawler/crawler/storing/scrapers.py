@@ -28,13 +28,6 @@ def crawl_resource(page_url, url):
         'get_url': get_url,
     }
 
-def valid_urls(urls):
-    def valid_url(url):
-        not_data = not url.startswith('data:')
-        not_empty = len(url.strip()) > 0
-        return not_data and not_empty
-
-    return filter(valid_url, urls)
 
 class HTMLScraper(object):
     def __init__(self, url):
@@ -59,7 +52,7 @@ class HTMLScraper(object):
 
     def _crawl_resources(self):
         for _, urls in self._urls_mapping.items():
-            urls = valid_urls(urls)
+            urls = self.valid_urls(urls)
             self._resources[_] = list(
                 map(lambda url: crawl_resource(self._site_url, url), urls)
             )
@@ -69,7 +62,7 @@ class HTMLScraper(object):
             RESOURCE_TYPES.FONT: [],
             RESOURCE_TYPES.IMAGE: [],
         }
-        urls = valid_urls(urls)
+        urls = self.valid_urls(urls)
         for origin_url in urls:
             url = origin_url
             if not url.startswith('http'):
@@ -97,6 +90,14 @@ class HTMLScraper(object):
             sub_resource_urls = re.findall('url\("([^)]+)"\)', content)
             sub_resources = self._crawl_subresources(resource['get_url'], sub_resource_urls)
             self._css_resources[resource['url']] = sub_resources
+
+    def valid_urls(self, urls):
+        def valid_url(url):
+            not_data = not url.startswith('data:')
+            not_empty = len(url.strip()) > 0
+            return not_data and not_empty
+
+        return filter(valid_url, urls)
 
     def html_content(self, pretty_print=False):
         return self._html_content

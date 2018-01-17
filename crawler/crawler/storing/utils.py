@@ -1,18 +1,13 @@
+from django.conf import settings
+from urllib.parse import urlparse
+
 def mediaurl(path):
     s3_domain = getattr(settings, 'AWS_S3_CUSTOM_DOMAIN')
     base_url = settings.DOMAIN_NAME
     if s3_domain != '':
         base_url = 'https://{domain}'.format(domain=s3_domain)
 
-    url = path
-    parsed_path = urlparse(path)
-    if not path.startswith('http'):
-        url = '{domain}{path}'.format(domain=base_url, path=path)
-
-    if len(parsed_path.query) > 0:
-        url = "{url}?{query}".format(url=url, query=parsed_path.query)
-
-    return url
+    return '{domain}{path}'.format(domain=base_url, path=path)
 
 def as_hosted_content(content, resources):
     """
@@ -28,7 +23,7 @@ def as_hosted_content(content, resources):
     content = content.decode()
     if len(resources) > 0:
         mapped_urls = {
-            resource['url']: mediaurl(resource['hosted_url']) for resource in resources
+            resource['url']: resource['hosted_url'] for resource in resources
         }
         content = multiple_replace(content, mapped_urls)
     return bytes(content, 'utf-8')
@@ -54,7 +49,7 @@ def save_resource(article, resource, use_tdir=True, uniq_fn=True):
     f = storage.open(path)
     f.write(content)
     f.close()
-    resource['hosted_url'] = path
+    resource['hosted_url'] = mediaurl(path)
     return resource
 
 def save_resources(article, resources_dict, css_resources):
