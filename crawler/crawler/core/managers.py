@@ -72,7 +72,10 @@ class ArticleQuerySet(models.query.QuerySet):
     def should_be_preserved(self):
         # Note: we can't rely on queryset values because should_preserve is a
         # dynamic property.
-        return list(filter(lambda a: a.should_preserve, self))
+        return self.filter(pk__in=map(
+            lambda a: a.pk,
+            filter(lambda a: a.should_preserve, self)
+        ))
 
     def should_be_archived(self):
         qs = self.get_queryset()
