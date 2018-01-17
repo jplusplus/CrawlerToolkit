@@ -3,12 +3,16 @@ omit=
   crawler/crawler/celery.py
   crawler/crawler/settings*
   crawler/crawler/constants.py
+  crawler/crawler/*/apps.py
+  crawler/crawler/*/receivers.py
   crawler/crawler/*/admin.py
   crawler/crawler/*/admin/*
   crawler/crawler/*/migrations/*
 
 exclude_lines =
-    pragma: nocover
+    import .*
+    from .* import .*
+    # pragma: nocover
     def __repr__
     if debug:
     if self.debug:
