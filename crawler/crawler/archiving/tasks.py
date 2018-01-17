@@ -3,12 +3,11 @@ from celery.decorators import task
 from celery.utils import log
 from crawler import utils
 from crawler.archiving.models import ArchivedArticle
-from .scrapers import detect_notfound, archive
+from crawler.archiving.scrapers import detect_notfound
+
+from crawler.archiving import services as archive
 
 logger = log.get_task_logger(__name__)
-
-def notify_archived(articles):
-    articles_archived.send(articles)
 
 def archive_article(article):
     from crawler.constants import STATES
