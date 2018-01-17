@@ -1,5 +1,6 @@
 from django.conf import settings
 from urllib.parse import urlparse
+import re
 
 def mediaurl(path):
     s3_domain = getattr(settings, 'AWS_S3_CUSTOM_DOMAIN')

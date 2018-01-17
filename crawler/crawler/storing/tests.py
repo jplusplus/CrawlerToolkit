@@ -81,6 +81,48 @@ class ScrapersTestCase(TestCase):
         )
 
 class UtilsTestCase(TestCase):
+    def test_as_hosted_content(self):
+        resources = [
+            {
+                'url': 'http://fake.com/style.css',
+                'hosted_url': 'http://hosted.com/styles/style.css'
+            },
+            {
+                'url': 'http://fake.com/1.png',
+                'hosted_url': 'http://hosted.com/images/1.png'
+            },
+            {
+                'url': 'http://fake.com/2.png',
+                'hosted_url': 'http://hosted.com/images/2.png'
+            }
+        ]
+        content = '''
+        <html>
+            <head>
+                <link href="{url_style}" rel="stylesheet" />
+            </head>
+            <body>
+                <img src="{img_a}" />
+                <img src="{img_b}" />
+            </body>
+        </html>
+        '''
+
+        original_html = content.format(
+            url_style=resources[0]['url'],
+            img_a=resources[1]['url'],
+            img_b=resources[2]['url']
+        )
+        expected_hosted = content.format(
+            url_style=resources[0]['hosted_url'],
+            img_a=resources[1]['hosted_url'],
+            img_b=resources[2]['hosted_url']
+        )
+        self.assertEqual(
+            utils.as_hosted_content(bytes(original_html, 'utf-8'), resources),
+            bytes(expected_hosted, 'utf-8')
+        )
+
     def test_mediaurl(self):
         self.assertEqual(
             utils.mediaurl('/style.css'),
