@@ -38,7 +38,7 @@ dj_test() {
 }
 
 test(){
-  dj_test crawler
+  dj_test crawler $@
 }
 
 shell() {
@@ -188,6 +188,12 @@ deploy () {
 # deploy to crawler-toolkit-staging remote.
 deploy_staging () {
   deploy_heroku heroku-staging
+}
+
+# Search in source files
+sif(){
+  path="${2:-crawler/crawler/}"
+  grep -rn $path -e $1 --exclude=*.{pyc,swo,swn}
 }
 
 if [[ "$(type -t $@)" =~ .*function ]];
