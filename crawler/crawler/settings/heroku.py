@@ -1,4 +1,4 @@
-from .settings import *
+from .common import *
 import dj_database_url
 
 db_from_env = dj_database_url.config(conn_max_age=500)
@@ -6,10 +6,12 @@ db_from_env = dj_database_url.config(conn_max_age=500)
 DEBUG = os.getenv('DEBUG', 0)
 DEBUG = DEBUG != 0
 
+HEROKU_APPNAME = os.getenv('HEROKU_APPNAME', 'offshore-crawler')
+
 INSTALLED_APPS = INSTALLED_APPS + ['storages',]
 
 ALLOWED_HOSTS = [
-    'offshore-crawler.herokuapp.com',
+    '{app}.herokuapp.com'.format(app=HEROKU_APPNAME),
 ]
 
 DOMAIN_NAME = 'https://%s' % ALLOWED_HOSTS[0]
