@@ -1,3 +1,19 @@
+def mediaurl(path):
+    s3_domain = getattr(settings, 'AWS_S3_CUSTOM_DOMAIN')
+    base_url = settings.DOMAIN_NAME
+    if s3_domain != '':
+        base_url = 'https://{domain}'.format(domain=s3_domain)
+
+    url = path
+    parsed_path = urlparse(path)
+    if not path.startswith('http'):
+        url = '{domain}{path}'.format(domain=base_url, path=path)
+
+    if len(parsed_path.query) > 0:
+        url = "{url}?{query}".format(url=url, query=parsed_path.query)
+
+    return url
+
 def as_hosted_content(content, resources):
     """
     Produce suitabled "hosted" version of a text file.

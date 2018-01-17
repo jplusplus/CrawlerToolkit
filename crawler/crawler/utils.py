@@ -9,27 +9,11 @@ class POPO(object): pass
 def pickattr(qs, attrname):
     return list(map(lambda obj:getattr(obj, attrname), qs))
 
-def absurl(path):
+def absurl(path): # pragma: nocover
     return "{domain}{path}".format(
         domain=settings.DOMAIN_NAME,
         path=path
     )
-
-def mediaurl(path):
-    s3_domain = getattr(settings, 'AWS_S3_CUSTOM_DOMAIN')
-    base_url = settings.DOMAIN_NAME
-    if s3_domain != '':
-        base_url = 'https://{domain}'.format(domain=s3_domain)
-
-    url = path
-    parsed_path = urlparse(path)
-    if not path.startswith('http'):
-        url = '{domain}{path}'.format(domain=base_url, path=path)
-
-    if len(parsed_path.query) > 0:
-        url = "{url}?{query}".format(url=url, query=parsed_path.query)
-
-    return url
 
 def modelcounts(sort=False, reverse=True):
     count = lambda model: (
@@ -45,7 +29,7 @@ def modelcounts(sort=False, reverse=True):
     return counts
 
 def strtobool(original_value):
-    value = original_value.strip()
+    value = original_value.strip().lower()
     if value == 'true':
         value = True
     else:
