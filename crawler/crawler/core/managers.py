@@ -69,6 +69,10 @@ class ArticleQuerySet(models.query.QuerySet):
     def delete_archived_urls(self):
         return [ _.delete() for _ in self.archived_urls() ]
 
+    def should_be_preserved(self):
+        # Note: we can't rely on queryset values because should_preserve is a
+        # dynamic property.
+        return list(filter(lambda a: a.should_preserve, self))
 
     def should_be_archived(self):
         qs = self.get_queryset()
@@ -91,7 +95,7 @@ class ArticleQuerySet(models.query.QuerySet):
         )
 
     def filter_by_tag(self, TagModel):
-        tags = TagModel.objects.filter(article__in=self).should_preserve()
+        tags = TagModel.objects.filter(article__in=self).should_be_preserved()
         return tags.values_list('article')
 
     def priority_tagged(self):
@@ -103,9 +107,6 @@ class ArticleQuerySet(models.query.QuerySet):
     def not_found_only_tagged(self):
         return self.filter_by_tag(NotFoundOnlyTag)
 
-    def should_be_preserved(self):
-        qs = self.get_queryset()
-        return list(filter(lambda a: a.should_preserve, qs))
 
 class ArticleManager(models.Manager, ByIdsMixin):
     def get_queryset(self):

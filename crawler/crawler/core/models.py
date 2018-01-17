@@ -34,17 +34,19 @@ class Feed(models.Model):
 
     def __unicode__(self):
         return self.name
+
     def __str__(self):
         return self.name
 
 def slugify_article_url(url):
     url = urlparse(url)
     path = url.path
-    extension_pattern = re.compile('\.[\w]+$')
-    if extension_pattern.match(path):
-        path = path.split('.')[-1]
+
+    if re.match('.*\.[\w]+$', path):
+        path = '.'.join(path.split('.')[:-1])
+
     path = '-'.join(
-        list(filter(lambda _:len(_),path.split('/')))
+        list(filter(lambda _: len(_), path.split('/')))
     )
     return path
 

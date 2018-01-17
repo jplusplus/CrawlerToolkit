@@ -1,13 +1,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.test import TestCase
+
+from django.core.exceptions import ValidationError
 from django.db.models.query import QuerySet
 from django.utils import timezone
+from django.test import TestCase
+
 from crawler.constants import STATES
 from crawler.core import validators, models
 from crawler.scraping.models import PriorityTag, ReleaseDateTag, NotFoundOnlyTag
 
-from django.core.exceptions import ValidationError
+class CoreTestCase(TestCase):
+    def setUp(self):
+        from crawler.celery import app
+        self.celery = app
+
+    def test_celery(self):
+        print('\ntasks: %s\n' % self.celery.tasks)
+        self.assertIsNotNone(self.celery)
 
 Feed = models.Feed
 Article = models.Article
@@ -86,6 +96,11 @@ class ArticleTestCase(TestCase, AssertAllMixin):
 
     def test_slug(self):
         self.assertEqual(self.first_art.slug, '1')
+
+    def test_slugify_article_url(self):
+        url = 'http://fakeurl.com/a/fake/url/example.html'
+        slug = models.slugify_article_url(url)
+        self.assertEqual(slug, 'a-fake-url-example')
 
     def test_resources_dir(self):
         self.assertEqual(self.first_art.resources_dir(), 'toutenrab/1')
