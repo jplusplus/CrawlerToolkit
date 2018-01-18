@@ -5,8 +5,9 @@ from django.core.exceptions import ValidationError
 from django.db.models.query import QuerySet
 from django.utils import timezone
 from django.test import TestCase
+import re
 
-from crawler.constants import STATES
+from crawler.constants import STATES, RESOURCE_TYPES
 from crawler.core import validators, models
 from crawler.scraping.models import PriorityTag, ReleaseDateTag, NotFoundOnlyTag
 from crawler.archiving.models import ArchivedArticle
@@ -114,6 +115,37 @@ class ArticleTestCase(TestCase, AssertAllMixin):
     def test_resources_dir(self):
         self.assertEqual(self.first_art.resources_dir(), 'toutenrab/1')
 
+    def test_resource_path(self):
+        uuid_patt = '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}'
+        fn = 'style.css'
+        self.assertIsNotNone(
+            re.match(
+                'toutenrab/1/stylesheets/%s\.css' % uuid_patt,
+                self.first_art.resource_path(fn, resource_type=RESOURCE_TYPES.STYLE)
+            )
+        )
+        self.assertEqual(
+            self.first_art.resource_path(fn,
+                resource_type=RESOURCE_TYPES.STYLE,
+                uniq_fn=False
+            ),
+            'toutenrab/1/stylesheets/style.css',
+        )
+        self.assertEqual(
+            self.first_art.resource_path(fn,
+                resource_type=RESOURCE_TYPES.STYLE,
+                uniq_fn=False,
+                use_tdir=False,
+            ),
+            'toutenrab/1/style.css',
+        )
+
+    def test_index_path(self):
+        self.assertEqual(
+            self.first_art.index_path(),
+            'toutenrab/1/index.html'
+        )
+
     def test_preservation_tags(self):
         tags = self.first_art.preservation_tags()
         self.assertTrue(isinstance(tags, QuerySet))
@@ -138,6 +170,25 @@ class ArticleTestCase(TestCase, AssertAllMixin):
         b = Article.objects.get(pk=self.second_art.pk)
         self.assertEqual(a.preservation_state, STATES.PRESERVATION.PRESERVE)
         self.assertEqual(b.preservation_state, STATES.PRESERVATION.NO_PRESERVE)
+
+    def test_set_stored(self):
+        articles = Article.objects.all()
+        articles.set_stored()
+        a = Article.objects.get(pk=self.first_art.pk)
+        b = Article.objects.get(pk=self.second_art.pk)
+        self.assertEqual(a.preservation_state, STATES.PRESERVATION.STORED)
+        self.assertEqual(b.preservation_state, STATES.PRESERVATION.STORED)
+
+    def test_serve_url(self):
+        self.assertEqual(
+            self.first_art.serve_url, 'http://localhost:4000/store/toutenrab/1/'
+        )
+
+    def test_source(self):
+        self.assertEqual(self.first_art.source, self.feed.name)
+
+    def test_should_preserve(self):
+        self.assertTrue(self.first_art.should_preserve)
 
     def test_should_be_preserved(self):
         def check_should_be_preserved(should_be_preserved):

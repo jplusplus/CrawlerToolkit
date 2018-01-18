@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 import re
 from urllib.parse import urlparse
+from uuid import uuid4
 
 from django.contrib.contenttypes.fields import GenericRelation,GenericForeignKey
 from django.core.files.base import ContentFile
@@ -84,7 +85,7 @@ class Article(models.Model):
     def resources_dir(self):
         return '/'.join([ self.feed.slug, self.slug ])
 
-    def resource_path(self, fn, resource_type=None, use_tdir=True, uniq_fn=True):
+    def resource_path(self, filename, resource_type=None, use_tdir=True, uniq_fn=True):
         resources_dir = self.resources_dir()
         if use_tdir:
             if resource_type != None:
@@ -96,7 +97,10 @@ class Article(models.Model):
             fid = str(uuid4())
             filename = "{}.{}".format(fid, ext)
 
-        return "{path}/{fn}".format(path=resources_dir, fn=fn)
+        return "{path}/{fn}".format(
+            path=resources_dir,
+            fn=filename
+        )
 
     def index_path(self):
         return self.resource_path('index.html', use_tdir=False, uniq_fn=False)
