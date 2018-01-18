@@ -76,7 +76,8 @@ def check_articles_to_archive():
     """
     from crawler.core.models import Article
     # Filter articles that can't be archived
-    articles = Article.objects.all().can_be_archived()
+    articles = Article.objects.all().should_be_archived()
+    articles = articles.should_be_archived()
     # queryset of articles needing immediate archiving
     archive_articles = detect_notfound(
         articles.not_found_only_tagged()

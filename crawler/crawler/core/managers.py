@@ -20,12 +20,19 @@ class FeedManager(models.Manager, ByIdsMixin):
 class ArticleQuerySet(models.query.QuerySet):
     def set_stored(self):
         self.update(preservation_state=STATES.PRESERVATION.STORED)
+        return self
+
+    def set_archived(self):
+        self.update(archiving_state=STATES.ARCHIVE.ARCHIVED)
+        return self
 
     def set_archiving(self):
         self.update(archiving_state=STATES.ARCHIVE.ARCHIVING)
+        return self
 
     def set_preserving(self):
         self.update(preservation_state=STATES.PRESERVATION.PRESERVING)
+        return self
 
     def set_crawled(self):
         with transaction.atomic():
@@ -39,24 +46,20 @@ class ArticleQuerySet(models.query.QuerySet):
             preservation_state=''
         )
 
-    def can_be_archived(self):
-        return self.exclude(
-            archiving_state=STATES.ARCHIVE.ARCHIVED
-        ).exclude(
-            preservation_state=STATES.PRESERVATION.NO_PRESERVE
-        )
-
     def delete_resources(self):
         return [ a.deletedir() for a in self]
 
     def tags(self):
-        return PriorityTag.objects.filter(
+        qs = list(PriorityTag.objects.filter(
             article__in=self
-        ).union(
+        ))
+        qs = qs + list(
             ReleaseDateTag.objects.filter(article__in=self)
-        ).union(
+        )
+        qs = qs + list(
             NotFoundOnlyTag.objects.filter(article__in=self)
         )
+        return qs
 
     def delete_tags(self):
         return [ tag.delete() for tag in self.tags() ]
@@ -77,14 +80,19 @@ class ArticleQuerySet(models.query.QuerySet):
             filter(lambda a: a.should_preserve, self)
         ))
 
+    def can_be_archived(self):
+        return self.exclude(
+            archiving_state=STATES.ARCHIVE.ARCHIVED
+        ).exclude(
+            archiving_state=STATES.ARCHIVE.ARCHIVING
+        )
+
     def should_be_archived(self):
         should_be_archived = self.release_date_tagged().should_be_preserved()
         should_be_archived = should_be_archived.union(
             self.priority_tagged().should_be_preserved()
         )
-        return should_be_archived.exclude(
-            archiving_state=STATES.ARCHIVE.ARCHIVED
-        )
+        return should_be_archived
 
     def filter_by_tag(self, TagModel):
         tags = TagModel.objects.filter(article__in=self)

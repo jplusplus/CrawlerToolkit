@@ -21,6 +21,10 @@ class CoreTestCase(TestCase):
         print('\ntasks: %s\n' % self.celery.tasks)
         self.assertIsNotNone(self.celery)
 
+    def test_init(self):
+        from crawler.core import default_app_config
+        self.assertIsNotNone(default_app_config)
+
 Feed = models.Feed
 Article = models.Article
 
@@ -146,10 +150,24 @@ class ArticleTestCase(TestCase, AssertAllMixin):
             'toutenrab/1/index.html'
         )
 
+    def checkDeleteTagsWith(self, obj):
+        init_nb_tags = len(obj.tags())
+        self.assertTrue(
+            len(self.first_art.tags()) > 0
+        )
+        deleted_tags = obj.delete_tags()
+        self.assertEqual(len(deleted_tags), init_nb_tags)
+        self.assertEqual(len(obj.tags()), 0)
+
+    def test_model_delete_tags(self):
+        self.checkDeleteTagsWith(self.first_art)
+
+    def test_queryet_delete_tags(self):
+        self.checkDeleteTagsWith(Article.objects.all())
+
     def test_preservation_tags(self):
-        tags = self.first_art.preservation_tags()
-        self.assertTrue(isinstance(tags, QuerySet))
-        self.assertEqual(tags.count(), 2)
+        tags = self.first_art.tags()
+        self.assertEqual(len(tags), 2)
 
     def test_set_preserving(self):
         is_preserving = lambda el: el.preservation_state == STATES.PRESERVATION.PRESERVING
@@ -179,6 +197,35 @@ class ArticleTestCase(TestCase, AssertAllMixin):
         self.assertEqual(a.preservation_state, STATES.PRESERVATION.STORED)
         self.assertEqual(b.preservation_state, STATES.PRESERVATION.STORED)
 
+    def test_reset_states(self):
+        articles = Article.objects.all().set_stored().set_archived()
+        self.assertTrue(
+            all(
+                map(
+                    lambda _: (
+                        _.preservation_state == STATES.PRESERVATION.STORED
+                    ) and (
+                        _.archiving_state == STATES.ARCHIVE.ARCHIVED
+                    ),
+                    articles
+                )
+            )
+        )
+        articles.reset_states()
+        self.assertTrue(
+            all(
+                map(
+                    lambda _: (
+                        _.preservation_state == ''
+                    ) and (
+                        _.archiving_state == None
+                    ),
+                    articles
+                )
+            )
+        )
+
+
     def test_serve_url(self):
         self.assertEqual(
             self.first_art.serve_url, 'http://localhost:4000/store/toutenrab/1/'
@@ -189,6 +236,13 @@ class ArticleTestCase(TestCase, AssertAllMixin):
 
     def test_should_preserve(self):
         self.assertTrue(self.first_art.should_preserve)
+
+    def test_can_be_archived(self):
+        # All articles are archiveable if they've not already been archived or
+        # are curently being archived.
+        self.assertIn(self.first_art, Article.objects.all().can_be_archived())
+        Article.objects.all().set_archived()
+        self.assertNotIn(self.first_art, Article.objects.all().can_be_archived())
 
     def test_should_be_preserved(self):
         def check_should_be_preserved(should_be_preserved):

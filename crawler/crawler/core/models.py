@@ -73,11 +73,19 @@ class Article(models.Model):
             blank=True,
             null=True)
 
-    def preservation_tags(self):
-        qs = NotFoundOnlyTag.objects.filter(article=self)
-        qs = qs.union(
+    def delete_tags(self):
+        return [
+            tag.delete() for tag in self.tags()
+        ]
+
+    def tags(self):
+        qs = list(
+            NotFoundOnlyTag.objects.filter(article=self)
+        )
+        qs = qs + list(
             ReleaseDateTag.objects.filter(article=self)
-        ).union(
+        )
+        qs = qs + list(
             PriorityTag.objects.filter(article=self)
         )
         return qs
