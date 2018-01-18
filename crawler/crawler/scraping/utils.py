@@ -16,6 +16,7 @@ def create_priority_tag(article_id, value):
 def create_release_date_tag(article_id, value):
     if date_pattern.match(value):
         value = datetime.strptime(value, '%Y-%m-%d')
+        value = value.astimezone(tz=timezone.get_current_timezone())
     else:
         value = None
     return ReleaseDateTag.objects.create(

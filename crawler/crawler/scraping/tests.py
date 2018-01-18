@@ -1,7 +1,12 @@
 from django.test import TestCase
-from crawler.scraping.scrapers import page_metas, xml as xmlscraper
-
+from django.utils import timezone
 import requests_mock
+
+from crawler.core.models import Feed, Article
+from crawler.scraping import utils
+from crawler.scraping import models
+from crawler.scraping.models import PriorityTag,ReleaseDateTag,NotFoundOnlyTag
+from crawler.scraping.scrapers import page_metas, xml as xmlscraper
 
 class PageMetasTestCase(TestCase):
     def setUp(self):
@@ -16,9 +21,16 @@ class PageMetasTestCase(TestCase):
             </head>
         </html>
         '''
+        self.feed = Feed.objects.create(
+            name='fake',
+            url='http://fake.com/feed.xml'
+        )
+        self.article = Article.objects.create(
+            feed=self.feed,
+            url=self.fake_url
+        )
 
     def checkMetas(self, _):
-        print("checkMetas %s" % _)
         [ title, metas ] = _
         self.assertEqual(len(metas), 3)
         self.assertEqual(title, 'Fake title')
@@ -34,6 +46,60 @@ class PageMetasTestCase(TestCase):
         self.checkMetas(
             page_metas.parse(self.fake_html)
         )
+
+    def test_preservation_tag_type(self):
+        self.assertEqual(
+            models.preservation_tag_type(PriorityTag), 'preservation:priority'
+        )
+        self.assertEqual(
+            models.preservation_tag_type(ReleaseDateTag), 'preservation:release_date'
+        )
+        self.assertEqual(
+            models.preservation_tag_type(NotFoundOnlyTag), 'preservation:notfound_only'
+        )
+
+        with self.assertRaises(ValueError):
+            models.preservation_tag_type(Feed)
+
+    def test_preservation_tag_model(self):
+        self.assertEqual(
+            models.preservation_tag_model('preservation:priority'), PriorityTag
+        )
+        self.assertEqual(
+            models.preservation_tag_model('preservation:release_date'), ReleaseDateTag
+        )
+        self.assertEqual(
+            models.preservation_tag_model('preservation:notfound_only'),NotFoundOnlyTag
+        )
+
+        with self.assertRaises(ValueError):
+            models.preservation_tag_model('preservation:not_existing')
+
+    def test_save_tags(self):
+        art = self.article
+        [ title, tags ] = page_metas.parse(self.fake_html)
+        tags = map(lambda _: [ art.pk, _ ], tags)
+        saved_tags = utils.save_preservation_tags(tags)
+        self.assertEqual(len(saved_tags), 3)
+
+        priority = saved_tags[0]
+        release_date = saved_tags[1]
+        notfound_only = saved_tags[2]
+
+        self.assertIsInstance(priority, PriorityTag)
+        self.assertTrue(priority.value)
+
+        self.assertIsInstance(release_date, ReleaseDateTag)
+        self.assertEqual(
+            release_date.value,
+            timezone.datetime(
+                2018, 1, 8, tzinfo=timezone.get_current_timezone()
+            )
+        )
+
+        self.assertIsInstance(notfound_only, NotFoundOnlyTag)
+        self.assertFalse(notfound_only.value)
+
 
 class XMLFeedTestCase(TestCase):
     def setUp(self):
