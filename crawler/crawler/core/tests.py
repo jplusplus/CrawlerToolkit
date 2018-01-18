@@ -9,6 +9,7 @@ import re
 
 from crawler.constants import STATES, RESOURCE_TYPES
 from crawler.core import validators, models
+from crawler.core.managers import ArticleQuerySet
 from crawler.scraping.models import PriorityTag, ReleaseDateTag, NotFoundOnlyTag
 from crawler.archiving.models import ArchivedArticle
 
@@ -76,6 +77,7 @@ class ArticleTestCase(TestCase, AssertAllMixin):
         )
 
     def createArticles(self):
+        self.qs = ArticleQuerySet(Article)
         self.first_art = Article.objects.get_or_create(
             url='http://fakeurl.com/1/',
             feed=self.feed
@@ -107,6 +109,9 @@ class ArticleTestCase(TestCase, AssertAllMixin):
         self.createFeeds()
         self.createArticles()
         self.createTags()
+
+    def test_queryset(self):
+        self.assertEqual(self.qs.all().count(), 2)
 
     def test_slug(self):
         self.assertEqual(self.first_art.slug, '1')
