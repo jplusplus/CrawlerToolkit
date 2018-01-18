@@ -1,4 +1,5 @@
 from django.db import models, transaction
+from django.utils import timezone
 from crawler.constants import STATES
 from crawler.archiving.models import ArchivedArticle
 from crawler.scraping.models import ReleaseDateTag, PriorityTag, NotFoundOnlyTag
@@ -25,7 +26,6 @@ class ArticleQuerySet(models.query.QuerySet):
 
     def set_preserving(self):
         self.update(preservation_state=STATES.PRESERVATION.PRESERVING)
-
 
     def set_crawled(self):
         with transaction.atomic():
@@ -78,28 +78,17 @@ class ArticleQuerySet(models.query.QuerySet):
         ))
 
     def should_be_archived(self):
-        qs = self.get_queryset()
-        ids = set(
-            ReleaseDateTag.objects.filter(
-                article__in=qs,
-                value__lte=timezone.now()
-            ).values_list('article_id')
+        should_be_archived = self.release_date_tagged().should_be_preserved()
+        should_be_archived = should_be_archived.union(
+            self.priority_tagged().should_be_preserved()
         )
-        ids = ids.union(
-            PriorityTag.objects.filter(
-                article__in=qs,
-                value=True
-            ).values_list('article_id')
-        )
-        return qs.filter(
-            pk__in=list(ids)
-        ).exclude(
+        return should_be_archived.exclude(
             archiving_state=STATES.ARCHIVE.ARCHIVED
         )
 
     def filter_by_tag(self, TagModel):
-        tags = TagModel.objects.filter(article__in=self).should_be_preserved()
-        return tags.values_list('article')
+        tags = TagModel.objects.filter(article__in=self)
+        return self.filter(pk__in=tags.values_list('article'))
 
     def priority_tagged(self):
         return self.filter_by_tag(PriorityTag)
@@ -114,6 +103,9 @@ class ArticleQuerySet(models.query.QuerySet):
 class ArticleManager(models.Manager, ByIdsMixin):
     def get_queryset(self):
         return ArticleQuerySet(self.model)
+
+    def should_be_preserved(self):
+        return self.get_queryset().should_be_preserved()
 
     def save_urls(self, urls):
         """

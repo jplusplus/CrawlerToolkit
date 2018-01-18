@@ -9,6 +9,7 @@ from django.test import TestCase
 from crawler.constants import STATES
 from crawler.core import validators, models
 from crawler.scraping.models import PriorityTag, ReleaseDateTag, NotFoundOnlyTag
+from crawler.archiving.models import ArchivedArticle
 
 class CoreTestCase(TestCase):
     def setUp(self):
@@ -69,16 +70,6 @@ class ArticleTestCase(TestCase, AssertAllMixin):
             active=True
         )
 
-    def createTags(self):
-        PriorityTag.objects.create(
-            value=False,
-            article=self.first_art
-        )
-        ReleaseDateTag.objects.create(
-            value=timezone.now(),
-            article=self.first_art
-        )
-
     def createArticles(self):
         self.first_art = Article.objects.get_or_create(
             url='http://fakeurl.com/1/',
@@ -88,6 +79,24 @@ class ArticleTestCase(TestCase, AssertAllMixin):
             url='http://fakeurl.com/2/',
             feed=self.feed
         )[0]
+        self.archived_article = ArchivedArticle.objects.create(
+            article=self.first_art,
+            url='http://fake-archive.com/saved/')
+
+    def createTags(self):
+        PriorityTag.objects.create(
+            value=False,
+            article=self.first_art
+        )
+        ReleaseDateTag.objects.create(
+            value=timezone.now(),
+            article=self.first_art
+        )
+        NotFoundOnlyTag.objects.create(
+            value=False,
+            article=self.second_art
+        )
+
 
     def setUp(self):
         self.createFeeds()
@@ -129,6 +138,48 @@ class ArticleTestCase(TestCase, AssertAllMixin):
         b = Article.objects.get(pk=self.second_art.pk)
         self.assertEqual(a.preservation_state, STATES.PRESERVATION.PRESERVE)
         self.assertEqual(b.preservation_state, STATES.PRESERVATION.NO_PRESERVE)
+
+    def test_should_be_preserved(self):
+        def check_should_be_preserved(should_be_preserved):
+            self.assertIn(self.first_art, should_be_preserved)
+            self.assertNotIn(self.second_art, should_be_preserved)
+
+        # test ArticleManager & ArticleQuerySet `should_be_preserved`
+        check_should_be_preserved(Article.objects.should_be_preserved())
+        check_should_be_preserved(Article.objects.all().should_be_preserved())
+
+    def test_should_be_archived(self):
+        should_be_archived = Article.objects.all().should_be_archived()
+        self.assertIn(self.first_art, should_be_archived)
+        self.assertNotIn(self.second_art, should_be_archived)
+
+    def test_not_found_only_tagged(self):
+        self.assertIn(
+            self.second_art, Article.objects.all().not_found_only_tagged()
+        )
+
+    def test_release_date_tagged(self):
+        self.assertIn(
+            self.first_art, Article.objects.all().release_date_tagged()
+        )
+
+    def test_priority_tagged(self):
+        self.assertIn(
+            self.first_art, Article.objects.all().priority_tagged()
+        )
+    # Article querysets should allow us to get archived article models
+    # See crawler.archiving.models
+    def test_archived_urls(self):
+        archived_articles = Article.objects.filter(pk=self.first_art.pk).archived_urls()
+        self.assertIn(self.archived_article, archived_articles)
+        self.assertEqual(archived_articles.count(), 1)
+
+    def test_delete_archived_urls(self):
+        archived_articles = Article.objects.filter(pk=self.first_art.pk).archived_urls()
+        self.assertEqual(archived_articles.count(), 1)
+        Article.objects.filter(pk=self.first_art.pk).delete_archived_urls()
+        archived_articles = Article.objects.filter(pk=self.first_art.pk).archived_urls()
+        self.assertEqual(archived_articles.count(), 0)
 
 class ValidatorsTestCase(TestCase):
     def assertError(self, url, should_have_raised=True):
