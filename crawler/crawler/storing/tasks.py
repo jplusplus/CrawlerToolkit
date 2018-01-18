@@ -4,7 +4,6 @@ from django.utils import timezone
 from celery.utils.log import get_task_logger
 from celery.contrib import rdb
 from django.core.files.storage import default_storage as storage
-from uuid import uuid4
 
 from celery.decorators import task
 from crawler.celery import app
