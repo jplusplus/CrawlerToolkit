@@ -5,11 +5,11 @@ class PreservationTagQuerySet(query.QuerySet):
     def should_be_preserved(self):
         raise NotImplementedError('Must implement should_be_preserved')
 
-class BoolTagMixin(object):
+class PriorityTagQuerySet(PreservationTagQuerySet):
     def should_be_preserved(self): return self.filter(value=True)
 
-class PriorityTagQuerySet(PreservationTagQuerySet, BoolTagMixin): pass
-class NotFoundOnlyTagQuerySet(PreservationTagQuerySet, BoolTagMixin): pass
+class NotFoundOnlyTagQuerySet(PreservationTagQuerySet):
+    def should_be_preserved(self): return self.filter(value=True)
 
 class ReleaseDateTagQuerySet(PreservationTagQuerySet):
     def should_be_preserved(self):

@@ -76,9 +76,8 @@ class PageMetasTestCase(TestCase):
             models.preservation_tag_model('preservation:not_existing')
 
     def test_save_tags(self):
-        art = self.article
         [ title, tags ] = page_metas.parse(self.fake_html)
-        tags = map(lambda _: [ art.pk, _ ], tags)
+        tags = map(lambda _: [ self.article.pk, _ ], tags)
         saved_tags = utils.save_preservation_tags(tags)
         self.assertEqual(len(saved_tags), 3)
 
@@ -88,6 +87,7 @@ class PageMetasTestCase(TestCase):
 
         self.assertIsInstance(priority, PriorityTag)
         self.assertTrue(priority.value)
+        self.assertTrue(priority.is_priority())
 
         self.assertIsInstance(release_date, ReleaseDateTag)
         self.assertEqual(
@@ -96,10 +96,25 @@ class PageMetasTestCase(TestCase):
                 2018, 1, 8, tzinfo=timezone.get_current_timezone()
             )
         )
+        self.assertTrue(release_date.is_release_date())
 
         self.assertIsInstance(notfound_only, NotFoundOnlyTag)
         self.assertFalse(notfound_only.value)
+        self.assertTrue(notfound_only.is_notfound_only())
 
+    def test_querysets(self):
+        [ title, tags ] = page_metas.parse(self.fake_html)
+        tags = map(lambda _: [ self.article.pk, _ ], tags)
+        utils.save_preservation_tags(tags)
+
+        prio = PriorityTag.objects.should_be_preserved()
+        self.assertEqual(prio.count(), 1)
+
+        date = ReleaseDateTag.objects.should_be_preserved()
+        self.assertEqual(date.count(), 1)
+
+        notfound = NotFoundOnlyTag.objects.should_be_preserved()
+        self.assertEqual(notfound.count(), 0)
 
 class XMLFeedTestCase(TestCase):
     def setUp(self):

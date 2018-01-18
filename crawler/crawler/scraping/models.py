@@ -25,6 +25,9 @@ class PreservationTagManager(models.Manager):
         QuerySet = self.queryset_class()
         return QuerySet(self.model)
 
+    def should_be_preserved(self):
+        return self.get_queryset().should_be_preserved()
+
 class PriorityTag(PreservationTag):
     value = models.BooleanField()
     objects = PreservationTagManager()
