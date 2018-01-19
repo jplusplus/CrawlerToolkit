@@ -121,7 +121,7 @@ class ArticleAdmin(admin.ModelAdmin):
                     '<b class="bold">{value}</b>'
                 '</div>'
             ).format(type=ttype,value=value)
-        preservation_tags = obj.preservation_tags()
+        preservation_tags = obj.tags()
         if len(preservation_tags) > 0:
             return '&nbsp;'.join(map(get_tag, preservation_tags))
         else:
