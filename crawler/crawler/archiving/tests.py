@@ -1,8 +1,11 @@
-from django.test import TestCase
+from django.contrib.auth.models import User
+from django.urls import reverse
+from django.test import TestCase, Client
 import random
+import requests
 import requests_mock
 
-from crawler.utils import pickattr
+from crawler.utils import pickattr, slimmer
 from crawler.core.models import Feed, Article
 from crawler.storing import utils as storing
 from crawler.archiving.services import ArchiveORG, Service
@@ -50,13 +53,13 @@ class ScrapersTestCase(TestCase):
         archived_url = archive.start()
         self.assertIsNotNone(archived_url)
 
+fake_html = '''<html>
+    <body><h1>Test</h1></body>
+</html>'''
+
 class ViewsTestCase(TestCase):
     def setUp(self):
-        self.html = '''
-        <html>
-            <body><h1>Test</h1></body>
-        </html>
-        '''
+        self.html = fake_html
         self.feed = Feed.objects.create(name='fake', url='http://fake.com')
         self.article_to_archive = Article.objects.create(feed=self.feed,
                 url='http://fake.com/posts/should-archive/')
@@ -68,5 +71,64 @@ class ViewsTestCase(TestCase):
         )
         self.article_without_resource = Article.objects.create(feed=self.feed,
                 url='http://fake.com/posts/should-not-archive/')
+        self.password = 'fakepass'
+        self.user = User.objects.create_user('fake', 'fake@fake.com', self.password)
 
+    def test_article_preview_authenticated(self):
+        article = self.article_to_archive
+        c = Client()
+        logged = c.login(username=self.user.username, password=self.password)
+        self.assertTrue(logged)
+        req = c.get(reverse('store:preview_article', kwargs={
+            'feed_slug': article.feed.slug,
+            'article_slug': article.slug
+        }))
+        content = list(req.streaming_content)[0].decode("utf-8")
+        self.assertEqual(
+            slimmer.html_slimmer(self.html),
+            slimmer.html_slimmer(content)
+        )
+        self.assertEqual(req.status_code, 200)
 
+    def test_article_preview_unauthenticated(self):
+        article = self.article_to_archive
+        c = Client()
+        req = c.get(reverse('store:preview_article', kwargs={
+            'feed_slug': article.feed.slug,
+            'article_slug': article.slug
+        }), follow=False)
+        self.assertEqual(req.status_code, 302)
+
+    def test_article_serve_not_archiving(self):
+        article = self.article_to_archive
+        c = Client()
+        req = c.get(reverse('store:serve_article', kwargs={
+            'feed_slug': article.feed.slug,
+            'article_slug': article.slug
+        }), follow=False)
+        self.assertEqual(req.status_code, 403)
+
+    def test_article_serve_archiving(self):
+        article = self.article_to_archive
+        Article.objects.filter(pk=article.pk).set_archiving()
+        c = Client()
+        req = c.get(reverse('store:serve_article', kwargs={
+            'feed_slug': article.feed.slug,
+            'article_slug': article.slug
+        }))
+        content = list(req.streaming_content)[0].decode("utf-8")
+        self.assertEqual(
+            slimmer.html_slimmer(self.html),
+            slimmer.html_slimmer(content)
+        )
+        self.assertEqual(req.status_code, 200)
+
+    def test_article_serve_without_html(self):
+        article = self.article_without_resource
+        Article.objects.filter(pk=article.pk).set_archiving()
+        c = Client()
+        req = c.get(reverse('store:serve_article', kwargs={
+            'feed_slug': article.feed.slug,
+            'article_slug': article.slug
+        }))
+        self.assertEqual(req.status_code, 404)

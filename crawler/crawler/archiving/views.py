@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.conf import settings
 from crawler.core.models import Article, Feed
 from crawler.constants import STATES
 
