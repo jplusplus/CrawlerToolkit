@@ -9,7 +9,7 @@ from crawler.archiving import services as archive
 
 logger = log.get_task_logger(__name__)
 
-def archive_article(article):
+def __archive_article(article):
     from crawler.constants import STATES
     service_name = ''
     archived_url = ''
@@ -61,11 +61,13 @@ def archive_articles(ids=None, skip_filter=False):
         - ids, list of articles ids
     """
     from crawler.core.models import Article
+    archived = list()
     articles = Article.objects.ids(ids)
     if not skip_filter:
         articles = articles.should_be_archived()
+
     articles.set_archiving()
-    return list(map(archive_article, articles))
+    return list(map(__archive_article, articles))
 
 @task(ignore_results=True)
 def check_articles_to_archive():
@@ -79,7 +81,7 @@ def check_articles_to_archive():
     articles = Article.objects.all().should_be_archived()
     articles = articles.should_be_archived()
     # queryset of articles needing immediate archiving
-    archive_articles = detect_notfound(
+    archive_articles_qs = detect_notfound(
         articles.not_found_only_tagged()
     ).union(
         articles.release_date_tagged()
@@ -88,7 +90,7 @@ def check_articles_to_archive():
     )
 
     archive_articles.apply_async(
-        ids=list(set(archive_articles.values_list('pk'))),
+        ids=list(set(archive_articles_qs.values_list('pk'))),
         skip_filter=True
     )
 
