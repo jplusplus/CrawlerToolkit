@@ -5,11 +5,15 @@ from django.core.files.storage import default_storage as storage
 from urllib.parse import urlparse
 import re
 
+from crawler.utils import absurl
 from crawler.constants import RESOURCE_TYPES
 
 def mediaurl(path):
-    base_url = getattr(settings, 'MEDIA_URL')
-    return '{domain}{path}'.format(domain=base_url, path=path)
+    media_url = getattr(settings, 'MEDIA_URL')
+    return absurl('{media}{path}'.format(
+        media=media_url,
+        path=path
+    ))
 
 def as_hosted_content(content, resources):
     """
@@ -22,27 +26,27 @@ def as_hosted_content(content, resources):
             return _dict[match.group(0)]
         return rx.sub(one_xlat, txt)
 
-    content = content.decode()
+    if type(content) == type(b''):
+        content = content.decode()
+
     if len(resources) > 0:
+        print('\n\nresources: %s' % resources)
         mapped_urls = {
             resource['url']: resource['hosted_url'] for resource in resources
         }
         content = multiple_replace(content, mapped_urls)
     return bytes(content, 'utf-8')
 
-def process_css(article, css, resources):
-    """
-    Parse given CSS file & identify subresources (fonts mostly)
-    """
-    content = css['content']
-    resources_dict = resources[css['url']]
-    resources_list = list()
-    for rtype, sub_resources in resources_dict.items():
-        resources_list += map(
-            lambda res: save_resource(article, res, resource_type=rtype),
-            sub_resources
-        )
-    return as_hosted_content(content, resources_list)
+def save_html(article, html, resources):
+    return save_resource(
+        article,
+        {
+            'filename': 'index.html',
+            'content': as_hosted_content(html, resources)
+        },
+        use_tdir=False,
+        uniq_fn=False
+    )
 
 def save_resource(
         article,
@@ -65,14 +69,38 @@ def save_resource(
     resource['hosted_url'] = mediaurl(path)
     return resource
 
-def save_resources(article, resources_dict, css_resources):
-    article_resources = list()
-    for resource_type, resources in resources_dict.items():
-        for resource_dict in resources:
-            if resource_type == RESOURCE_TYPES.STYLE:
-                resource_dict['content'] = process_css(article, resource_dict, css_resources)
+def save_static_resources(article, static_resources):
+    saved_resources = list()
 
-            article_resources.append(
-                save_resource(article, resource_dict, resource_type=resource_type)
+    if static_resources.get('content'):
+        static_resources = { None: [ static_resources ] }
+
+    for resource_type, resources in static_resources.items():
+        for resource_dict in resources:
+            if resource_dict.get('resources'):
+                sub_resources = save_static_resources(article, resource_dict['resources'])
+                resource_dict['content'] = as_hosted_content(
+                    resource_dict['content'],
+                    sub_resources
+                )
+                saved_resources = saved_resources + sub_resources
+
+            uniq_fn = resource_dict.get('uniq_fn', True)
+            use_tdir = resource_dict.get('use_tdir', True)
+            saved_resources.append(
+                save_resource(
+                    article,
+                    resource_dict,
+                    resource_type=resource_type,
+                    use_tdir=use_tdir,
+                    uniq_fn=uniq_fn
+                )
             )
-    return article_resources
+    return saved_resources
+
+def save_article_resources(article, scraper):
+    content = scraper.content()
+    content['filename'] = 'index.html'
+    content['use_tdir'] = False
+    content['uniq_fn'] = False
+    save_static_resources(article, content)

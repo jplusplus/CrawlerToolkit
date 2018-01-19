@@ -1,9 +1,11 @@
+from django.conf import settings
 from django.test import TestCase
+from crawler.core.models import Feed, Article
 from crawler.storing import scrapers, utils
 from crawler.constants import RESOURCE_TYPES
 import requests_mock
 
-class ScrapersTestCase(TestCase):
+class StoringTestCase(TestCase):
     def setUp(self):
         self.url = 'http://fake-url.com/my-post.html'
         self.img_url = 'http://fake-url.com/images/test.svg'
@@ -27,6 +29,10 @@ class ScrapersTestCase(TestCase):
         '''
         self.css = '.test {}'
         self.style_url = 'http://fake-url.com/styles/style.css'
+        self.feed = Feed.objects.create(name='fake', url='http://fake.com')
+        self.article = Article.objects.create(
+            feed=self.feed, url=self.url
+        )
 
     def mockServer(self, m):
         m.register_uri('GET', self.img_url, text=self.img)
@@ -34,6 +40,7 @@ class ScrapersTestCase(TestCase):
         m.register_uri('GET', self.style_url, text=self.css)
         return m
 
+class ScrapersTestCase(StoringTestCase):
     def test_url_to_filename(self):
         url = 'http://test.com/a/file/to_test.png'
         fn = scrapers.url_to_filename(url)
@@ -65,11 +72,13 @@ class ScrapersTestCase(TestCase):
     def test_crawl_page(self, m):
         m = self.mockServer(m)
         scraper = scrapers.HTMLScraper(self.url)
+        content = scraper.content()
+        html = content['content']
+        resources = content['resources']
         self.assertEqual(
-            scraper.html_content().decode('utf-8'),
+            html.decode('utf-8'),
             self.html
         )
-        resources = scraper.static_resources()
         self.assertEqual(
             len(resources[RESOURCE_TYPES.STYLE]),
             1
@@ -80,7 +89,15 @@ class ScrapersTestCase(TestCase):
             1
         )
 
-class UtilsTestCase(TestCase):
+class UtilsTestCase(StoringTestCase):
+
+    @requests_mock.Mocker()
+    def test_save_article_resources(self, m):
+        self.mockServer(m)
+        scraper = scrapers.HTMLScraper(self.article.url)
+        utils.save_article_resources(self.article, scraper)
+        self.assertTrue(self.article.has_index_resource())
+
     def test_as_hosted_content(self):
         resources = [
             {
@@ -124,12 +141,14 @@ class UtilsTestCase(TestCase):
         )
 
     def test_mediaurl(self):
+        domain = settings.DOMAIN_NAME
+        media = settings.MEDIA_URL
         self.assertEqual(
             utils.mediaurl('style.css'),
-            'http://localhost:4000/media/style.css'
+            '{0}{1}style.css'.format(domain, media)
         )
         self.assertEqual(
             utils.mediaurl('style.css?v=0.0'),
-            'http://localhost:4000/media/style.css?v=0.0'
+            '{0}{1}style.css?v=0.0'.format(domain, media)
         )
 

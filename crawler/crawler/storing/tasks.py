@@ -9,38 +9,13 @@ from celery.decorators import task
 from crawler.celery import app
 from crawler.constants import STATES, RESOURCE_TYPES
 from crawler.storing import utils
-
-# Scrapers 
-from .scrapers import HTMLScraper
+from crawler.storing.scrapers import HTMLScraper
 
 logger = get_task_logger(__name__)
 
-def scrape_article_resources(url):
-    scraper = HTMLScraper(url)
-    html_content = scraper.html_content()
-    html_resources = scraper.static_resources()
-    css_resources = scraper.css_resources()
-    # logger.info("sraped article")
-    return [ html_content, html_resources, css_resources ]
-
 def crawl_article_resources(article):
-    [ html_content, resources, css_resources ] = scrape_article_resources(
-        article.url
-    )
-    resources = utils.save_resources(article, resources, css_resources)
-    utils.save_resource(
-        article,
-        {
-            'filename': 'index.html',
-            'content': utils.as_hosted_content(
-                html_content,
-                resources
-            )
-        },
-        use_tdir=False,
-        uniq_fn=False
-    )
-    return resources
+    scraper = HTMLScraper(article.url)
+    return utils.save_article_resources(article, scraper)
 
 @task
 def crawl_resources(ids):

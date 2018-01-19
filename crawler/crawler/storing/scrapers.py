@@ -89,7 +89,7 @@ class HTMLScraper(object):
             content = resource['content'].decode()
             sub_resource_urls = re.findall('url\("([^)]+)"\)', content)
             sub_resources = self._crawl_subresources(resource['get_url'], sub_resource_urls)
-            self._css_resources[resource['url']] = sub_resources
+            resource['resources'] = sub_resources
 
     def valid_urls(self, urls):
         def valid_url(url):
@@ -99,11 +99,8 @@ class HTMLScraper(object):
 
         return filter(valid_url, urls)
 
-    def html_content(self, pretty_print=False):
-        return self._html_content
-
-    def static_resources(self):
-        return self._resources
-
-    def css_resources(self):
-        return self._css_resources
+    def content(self):
+        return {
+            'content': self._html_content,
+            'resources': self._resources
+        }
