@@ -125,11 +125,11 @@ class UtilsTestCase(TestCase):
 
     def test_mediaurl(self):
         self.assertEqual(
-            utils.mediaurl('/style.css'),
-            'http://localhost:4000/style.css'
+            utils.mediaurl('style.css'),
+            'http://localhost:4000/media/style.css'
         )
         self.assertEqual(
-            utils.mediaurl('/style.css?v=0.0'),
-            'http://localhost:4000/style.css?v=0.0'
+            utils.mediaurl('style.css?v=0.0'),
+            'http://localhost:4000/media/style.css?v=0.0'
         )
 

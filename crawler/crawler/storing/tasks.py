@@ -32,23 +32,24 @@ def crawl_article_resources(article):
         article,
         {
             'filename': 'index.html',
-            'content': utils.as_hoted_content(
+            'content': utils.as_hosted_content(
                 html_content,
                 resources
-            ) 
+            )
         },
         use_tdir=False,
         uniq_fn=False
     )
-    article.set_stored()
-    article.save()
-    return pk
+    return resources
 
 @task
 def crawl_resources(ids):
     from crawler.core.models import Article
-    articles = Article.objects.ids(ids).should_be_preserved()
+    logger.debug('crawl_resources(%s)' % ids)
+    articles = Article.objects.ids(ids).should_be_preserved().is_not_stored()
     articles.set_preserving()
-    map(crawl_article_resources, articles)
+    resources = map(crawl_article_resources, articles)
+    logger.debug('\ncrawled resources: \n\t%s\n\n' % list(resources))
+    articles.set_stored()
     return ids
 
