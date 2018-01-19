@@ -77,7 +77,6 @@ class ArticleTestCase(TestCase, AssertAllMixin):
         )
 
     def createArticles(self):
-        self.qs = ArticleQuerySet(Article)
         self.first_art = Article.objects.get_or_create(
             url='http://fakeurl.com/1/',
             feed=self.feed
@@ -111,7 +110,8 @@ class ArticleTestCase(TestCase, AssertAllMixin):
         self.createTags()
 
     def test_queryset(self):
-        self.assertEqual(self.qs.all().count(), 2)
+        qs = ArticleQuerySet(Article)
+        self.assertEqual(qs.all().count(), 2)
 
     def test_slug(self):
         self.assertEqual(self.first_art.slug, '1')

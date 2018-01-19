@@ -99,7 +99,7 @@ class Article(models.Model):
             if resource_type != None:
                 resources_dir += '/{}s'.format(resource_type)
             else:
-                raise Error("Must set resource_type argument")
+                raise ValueError("Must set resource_type argument")
         if uniq_fn:
             ext = filename.split('.')[-1]
             fid = str(uuid4())
@@ -114,7 +114,7 @@ class Article(models.Model):
         return self.resource_path('index.html', use_tdir=False, uniq_fn=False)
 
     def index_resource(self):
-        return storage.open(self.index_path(), 'r')
+        return storage.open(self.index_path(), 'rb')
 
     def has_index_resource(self):
         return storage.exists(self.index_path())
