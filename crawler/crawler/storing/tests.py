@@ -1,4 +1,5 @@
 from django.conf import settings
+
 from django.test import TestCase
 from crawler.core.models import Feed, Article
 from crawler.storing import scrapers, utils
@@ -90,7 +91,6 @@ class ScrapersTestCase(StoringTestCase):
         )
 
 class UtilsTestCase(StoringTestCase):
-
     @requests_mock.Mocker()
     def test_save_article_resources(self, m):
         self.mockServer(m)
