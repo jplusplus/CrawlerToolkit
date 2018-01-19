@@ -32,13 +32,13 @@ Article = models.Article
 class FeedsTestCase(TestCase):
     def setUp(self):
         self.inactive_feed = Feed.objects.create(
-            name='Toutenrab account',
-            url='https://twitter.com/toutenrab',
+            name='inactive',
+            url='https://fake.com/inactive.xml',
             active=False
         )
         self.active_feed = Feed.objects.create(
-            name='NKB account',
-            url='https://twitter.com/nkb',
+            name='active',
+            url='https://fake.com/ok.xml',
             active=True
         )
 
@@ -71,8 +71,8 @@ class AssertAllMixin(object):
 class ArticleTestCase(TestCase, AssertAllMixin):
     def createFeeds(self):
         self.feed = Feed.objects.create(
-            name='toutenrab',
-            url='http://twitter.com/toutenrab',
+            name='fake',
+            url='http://fake.com/feed.xml',
             active=True
         )
 
@@ -122,14 +122,14 @@ class ArticleTestCase(TestCase, AssertAllMixin):
         self.assertEqual(slug, 'a-fake-url-example')
 
     def test_resources_dir(self):
-        self.assertEqual(self.first_art.resources_dir(), 'toutenrab/1')
+        self.assertEqual(self.first_art.resources_dir(), 'fake/1')
 
     def test_resource_path(self):
         uuid_patt = '[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}'
         fn = 'style.css'
         self.assertIsNotNone(
             re.match(
-                'toutenrab/1/stylesheets/%s\.css' % uuid_patt,
+                'fake/1/stylesheets/%s\.css' % uuid_patt,
                 self.first_art.resource_path(fn, resource_type=RESOURCE_TYPES.STYLE)
             )
         )
@@ -138,7 +138,7 @@ class ArticleTestCase(TestCase, AssertAllMixin):
                 resource_type=RESOURCE_TYPES.STYLE,
                 uniq_fn=False
             ),
-            'toutenrab/1/stylesheets/style.css',
+            'fake/1/stylesheets/style.css',
         )
         self.assertEqual(
             self.first_art.resource_path(fn,
@@ -146,13 +146,13 @@ class ArticleTestCase(TestCase, AssertAllMixin):
                 uniq_fn=False,
                 use_tdir=False,
             ),
-            'toutenrab/1/style.css',
+            'fake/1/style.css',
         )
 
     def test_index_path(self):
         self.assertEqual(
             self.first_art.index_path(),
-            'toutenrab/1/index.html'
+            'fake/1/index.html'
         )
 
     def checkDeleteTagsWith(self, obj):
@@ -233,7 +233,7 @@ class ArticleTestCase(TestCase, AssertAllMixin):
 
     def test_serve_url(self):
         self.assertEqual(
-            self.first_art.serve_url, 'http://localhost:4000/store/toutenrab/1/'
+            self.first_art.serve_url, 'http://localhost:4000/store/fake/1/'
         )
 
     def test_source(self):
