@@ -4,6 +4,8 @@ import requests_mock
 
 from crawler.utils import pickattr
 from crawler.core.models import Feed, Article
+from crawler.storing import utils as storing
+from crawler.archiving.services import ArchiveORG, Service
 from crawler.archiving.scrapers import detect_notfound
 
 class ScrapersTestCase(TestCase):
@@ -41,4 +43,30 @@ class ScrapersTestCase(TestCase):
         self.assertTrue(all(
             map(lambda a: a in expected_not_found, not_found_articles)
         ))
+
+    def test_archive_org(self):
+        archive = ArchiveORG('http://google.fr')
+        self.assertEqual(archive.name(), 'ArchiveORG')
+        archived_url = archive.start()
+        self.assertIsNotNone(archived_url)
+
+class ViewsTestCase(TestCase):
+    def setUp(self):
+        self.html = '''
+        <html>
+            <body><h1>Test</h1></body>
+        </html>
+        '''
+        self.feed = Feed.objects.create(name='fake', url='http://fake.com')
+        self.article_to_archive = Article.objects.create(feed=self.feed,
+                url='http://fake.com/posts/should-archive/')
+
+        storing.save_html(
+            self.article_to_archive,
+            self.html,
+            []
+        )
+        self.article_without_resource = Article.objects.create(feed=self.feed,
+                url='http://fake.com/posts/should-not-archive/')
+
 

@@ -33,10 +33,7 @@ class ArchiveIS(Service):
         return archiveis.capture(self._url)
 
 
+__services = [ ArchiveIS, ArchiveORG ]
 
 def services(url):
-    return [
-        ArchiveIS(url),
-        ArchiveORG(url)
-    ]
-
+    return map(lambda _: _(url), __services)
