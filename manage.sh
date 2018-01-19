@@ -10,6 +10,11 @@ admin () {
   django-admin $@
 }
 
+cel () {
+  setup_env
+  celery $@
+}
+
 _heroku() {
   remote=$1
   args=("$@")
@@ -34,7 +39,7 @@ django () {
   ./crawler/manage.py $@
 }
 dj_test() {
-  django test $@
+  django test $@ --settings=crawler.settings.test
 }
 
 test(){
@@ -138,7 +143,7 @@ start_redis () {
 start_celery () {
   setup_env
   cd crawler
-  celery -A crawler worker -l info -B -E
+  celery -A crawler worker -l debug -B -E
   cd -
 }
 
