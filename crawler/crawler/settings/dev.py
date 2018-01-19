@@ -7,7 +7,5 @@ CELERY_RESULT_BACKEND = 'redis://localhost:3000'
 STATIC_ROOT = os.path.join(BASE_DIR, '..', 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'media')
 
-MEDIA_URL = '{0}/media/'.format(DOMAIN_NAME)
-
 DEFAULT_FILE_STORAGE = 'crawler.storages.LocalMediaStorage'
 

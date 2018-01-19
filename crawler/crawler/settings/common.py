@@ -156,7 +156,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
 )
-
+MEDIA_URL = '/media/'
 # Let this variable here
 AWS_S3_CUSTOM_DOMAIN = ''
 
