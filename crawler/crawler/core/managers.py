@@ -72,6 +72,11 @@ class ArticleQuerySet(models.query.QuerySet):
     def delete_archived_urls(self):
         return [ _.delete() for _ in self.archived_urls() ]
 
+    def is_not_stored(self):
+        return self.exclude(
+            preservation_state=STATES.PRESERVATION.STORED
+        )
+
     def should_be_preserved(self):
         # Note: we can't rely on queryset values because should_preserve is a
         # dynamic property.
@@ -88,24 +93,28 @@ class ArticleQuerySet(models.query.QuerySet):
         )
 
     def should_be_archived(self):
-        should_be_archived = self.release_date_tagged().should_be_preserved()
+        should_be_archived = self.release_date_tagged(
+            should_be_preserved=True
+        )
         should_be_archived = should_be_archived.union(
-            self.priority_tagged().should_be_preserved()
+            self.priority_tagged(should_be_preserved=True)
         )
         return should_be_archived
 
-    def filter_by_tag(self, TagModel):
+    def filter_by_tag(self, TagModel, should_be_preserved=False):
         tags = TagModel.objects.filter(article__in=self)
+        if should_be_preserved:
+            tags = tags.should_be_preserved()
         return self.filter(pk__in=tags.values_list('article'))
 
-    def priority_tagged(self):
-        return self.filter_by_tag(PriorityTag)
+    def priority_tagged(self, should_be_preserved=False):
+        return self.filter_by_tag(PriorityTag, should_be_preserved)
 
-    def release_date_tagged(self):
-        return self.filter_by_tag(ReleaseDateTag)
+    def release_date_tagged(self, should_be_preserved=False):
+        return self.filter_by_tag(ReleaseDateTag, should_be_preserved)
 
-    def not_found_only_tagged(self):
-        return self.filter_by_tag(NotFoundOnlyTag)
+    def not_found_only_tagged(self, should_be_preserved=False):
+        return self.filter_by_tag(NotFoundOnlyTag, should_be_preserved)
 
 
 class ArticleManager(models.Manager, ByIdsMixin):
