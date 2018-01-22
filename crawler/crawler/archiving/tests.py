@@ -13,8 +13,8 @@ from crawler.archiving.scrapers import detect_notfound
 
 class ScrapersTestCase(TestCase):
     def setUp(self):
-        self.feed = Feed.objects.create(
-            name='fake', url='http://fake-url.com/feed.xml'
+        self.feed = Feed.objects.create(name='fake',
+            url='http://fake-url.com/feed.xml'
         )
 
     def mockArticles(self, m, nb=500):
@@ -60,7 +60,8 @@ fake_html = '''<html>
 class ViewsTestCase(TestCase):
     def setUp(self):
         self.html = fake_html
-        self.feed = Feed.objects.create(name='fake', url='http://fake.com')
+        self.feed = Feed.objects.create(name='fake',
+                url='http://fake.com/feed.xml')
         self.article_to_archive = Article.objects.create(feed=self.feed,
                 url='http://fake.com/posts/should-archive/')
 
