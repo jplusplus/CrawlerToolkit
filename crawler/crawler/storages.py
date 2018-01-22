@@ -12,16 +12,8 @@ class MediaStorage(S3Boto3Storage):
         delete_keys = []
         for key in self.bucket.objects.filter(Prefix=path):
             delete_keys.append(key)
-            """
-            if len(delete_keys) > 100:
-                self.bucket.delete_keys(delete_keys)
-                delete_keys = []
-            """
-        print('keys to delete %s' % delete_keys)
-        """
         if len(delete) > 0:
             self.bucket.delete_keys(delete_keys)
-        """
 
 class LocalMediaStorage(FileSystemStorage):
     def deletedir(self, path):
