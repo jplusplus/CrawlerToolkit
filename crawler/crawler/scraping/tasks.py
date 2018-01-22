@@ -39,8 +39,8 @@ def crawl_articles(ids, update=False):
     if len(ids) == 0:
         logger.warning('crawl_articles called without articles ids')
 
-    if update:
-        articles = Article.objects.ids(ids)
+    articles = Article.objects.ids(ids)
+    if articles.count() > 0:
         articles.reset_states()
         # we delete previously detected of the given articles
         articles.delete_tags()
