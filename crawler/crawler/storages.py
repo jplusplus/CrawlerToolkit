@@ -12,7 +12,7 @@ class MediaStorage(S3Boto3Storage):
         delete_keys = []
         for key in self.bucket.objects.filter(Prefix=path):
             delete_keys.append(key)
-        if len(delete) > 0:
+        if len(delete_keys) > 0:
             self.bucket.delete_keys(delete_keys)
 
 class LocalMediaStorage(FileSystemStorage):
