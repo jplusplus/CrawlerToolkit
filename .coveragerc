@@ -1,6 +1,7 @@
 [report]
 omit=
   crawler/crawler/celery.py
+  crawler/crawler/utils/slimmer.py
   crawler/crawler/settings*
   crawler/crawler/constants.py
   crawler/crawler/*/apps.py
