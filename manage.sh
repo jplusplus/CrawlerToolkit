@@ -173,7 +173,7 @@ deploy_heroku () {
 }
 
 build_test_site() {
-  jekyll build -d ../$TEST_SITE_BUILD_FOLDER 
+  jekyll build -d ../$TEST_SITE_BUILD_FOLDER $@ 
 }
 
 push_test_site() {
@@ -182,7 +182,7 @@ push_test_site() {
   git subtree push --prefix $TEST_SITE_BUILD_FOLDER pages gh-pages
 }
 deploy_test_site () {
-  build_test_site
+  build_test_site --baseurl "CrawlerToolkit/"
   push_test_site
 }
 
