@@ -30,7 +30,7 @@ STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
 
 MEDIAFILES_LOCATION = 'archive'
 DEFAULT_FILE_STORAGE = 'crawler.storages.MediaStorage'
-MEDIA_URL =  'https://%s/%s/ %' (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
+MEDIA_URL =  'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
 
 DATABASES['default'].update(db_from_env)
 
