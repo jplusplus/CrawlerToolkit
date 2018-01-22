@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-<loc>https://jplusplus.github.io/CrawlerToolkit/jekyll/update/welcome-to-jekyll/</loc>
+<loc>/jekyll/update/welcome-to-jekyll/</loc>
 <lastmod>2017-10-23T18:01:53+02:00</lastmod>
 </url>
 <url>
-<loc>https://jplusplus.github.io/CrawlerToolkit/jekyll/preservation/Second-post-to-archive/</loc>
+<loc>/jekyll/preservation/Second-post-to-archive/</loc>
 <lastmod>2017-10-30T09:01:53+01:00</lastmod>
 </url>
 <url>
-<loc>https://jplusplus.github.io/CrawlerToolkit/jekyll/preservation/release-date-test/</loc>
+<loc>/jekyll/preservation/release-date-test/</loc>
 <lastmod>2017-10-30T09:01:53+01:00</lastmod>
 </url>
 <url>
-<loc>https://jplusplus.github.io/CrawlerToolkit/_pages/404/</loc>
+<loc>/_pages/404/</loc>
 </url>
 <url>
-<loc>https://jplusplus.github.io/CrawlerToolkit/about/</loc>
+<loc>/about/</loc>
 </url>
 <url>
-<loc>https://jplusplus.github.io/CrawlerToolkit/</loc>
+<loc>/</loc>
 </url>
 </urlset>
