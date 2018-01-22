@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'crawler.scraping',
     'crawler.storing',
     'crawler.archiving',
-    'crawler.dashboard',
     'debug_toolbar',
     'django_nose',
 ]
