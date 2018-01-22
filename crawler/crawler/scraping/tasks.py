@@ -21,7 +21,7 @@ is_xml_feed = lambda url: url.endswith('.xml')
 def __crawl_feed(feed_id, feed_url):
     detected_urls = list()
     if is_twitter_feed(feed_url):
-        detected_urls = twitter.scrape(feed_url)
+        detected_urls = twitter.scrape(feed_url, logger)
     elif is_xml_feed(feed_url):
         detected_urls = xml.scrape(feed_url)
     else:
