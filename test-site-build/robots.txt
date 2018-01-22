@@ -1,2 +1,1 @@
-User-agent: *
-Allow: /
+Sitemap: https://pbellon.github.io/http://jplusplus.github.io/CrawlerToolkit/sitemap.xml
