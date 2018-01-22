@@ -4,6 +4,7 @@ from django.test import TestCase
 from crawler.core.models import Feed, Article
 from crawler.storing import scrapers, utils
 from crawler.constants import RESOURCE_TYPES
+
 import requests_mock
 
 class StoringTestCase(TestCase):
@@ -151,4 +152,25 @@ class UtilsTestCase(StoringTestCase):
             utils.mediaurl('style.css?v=0.0'),
             '{0}{1}style.css?v=0.0'.format(domain, media)
         )
+
+        with self.settings(
+            MEDIA_URL='https://fake-aws.s3.amazonaws.com/archive/'
+        ):
+            self.assertEqual(
+                utils.mediaurl('style.css'),
+                'https://fake-aws.s3.amazonaws.com/archive/style.css'
+            )
+    def test_article_mediaurl(self):
+        resource_path = self.article.resource_path(
+            filename='style.css',
+            resource_type=RESOURCE_TYPES.STYLE,
+            uniq_fn=False)
+
+        with self.settings(
+            MEDIA_URL='https://fake-aws.s3.amazonaws.com/archive/'
+        ):
+            self.assertEqual(
+               utils.mediaurl(resource_path),
+               'https://fake-aws.s3.amazonaws.com/archive/fake/my-post/stylesheets/style.css'
+            )
 

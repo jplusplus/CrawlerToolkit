@@ -10,7 +10,7 @@ from crawler.constants import RESOURCE_TYPES
 
 def mediaurl(path):
     media_url = getattr(settings, 'MEDIA_URL')
-    path  = '{media}{path}'.format(
+    path = '{media}{path}'.format(
         media=media_url,
         path=path
     )
