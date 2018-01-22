@@ -230,10 +230,20 @@ class ArticleTestCase(TestCase, AssertAllMixin):
             )
         )
 
+    def test_preview_url(self):
+        ends = '/store/fake/1/preview/'
+        preview_url = self.first_art.preview_url
+        self.assertTrue(
+            preview_url.endswith(ends),
+            msg='preview URL (%s) should end with %s' % (preview_url, ends)
+        )
 
     def test_serve_url(self):
-        self.assertEqual(
-            self.first_art.serve_url, 'http://localhost:4000/store/fake/1/'
+        ends = '/store/fake/1/'
+        serve_url = self.first_art.serve_url
+        self.assertTrue(
+            serve_url.endswith(ends),
+            msg='serve URL (%s) should end with %s' % (serve_url, ends)
         )
 
     def test_source(self):

@@ -133,6 +133,16 @@ class Article(models.Model):
     def set_stored(self):
         self.preservation_state = STATES.PRESERVATION.STORED
 
+
+    @property
+    def preview_url(self):
+        kwargs = {
+            'feed_slug': self.feed.slug,
+            'article_slug': self.slug,
+        }
+        path = reverse('store:preview_article', kwargs=kwargs)
+        return utils.absurl(path)
+
     @property
     def serve_url(self):
         kwargs = {
