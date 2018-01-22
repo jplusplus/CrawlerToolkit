@@ -30,7 +30,7 @@ def archive_articles(ids=None, skip_filter=False):
         except Exception as e:
             logger.error('An error occured while archiving article', e)
 
-    return list(map(__archive_article, articles))
+    return True
 
 @task(ignore_results=True)
 def check_articles_to_archive():
