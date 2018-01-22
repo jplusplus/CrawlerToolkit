@@ -1,4 +1,5 @@
 from crawler.archiving.scrapers import detect_notfound
+from crawler.archivng.models import ArchivedArticle
 from crawler.archiving import services as archive
 from crawler.constants import STATES
 
