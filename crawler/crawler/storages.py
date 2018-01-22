@@ -1,4 +1,8 @@
+import os
+import shutil
+
 from django.conf import settings
+
 from storages.backends.s3boto3 import S3Boto3Storage
 from django.core.files.storage import FileSystemStorage
 
@@ -16,5 +20,21 @@ class MediaStorage(S3Boto3Storage):
             self.bucket.delete_keys(delete_keys)
 
 class LocalMediaStorage(FileSystemStorage):
+    # Took from django core files to have the right functionnality
+    # https://github.com/django/django/blob/master/django/core/files/storage.py
+    def delete(self, name):
+        assert name, "The name argument is not allowed to be empty."
+        name = self.path(name)
+        # If the file or directory exists, delete it from the filesystem.
+        try:
+            if os.path.isdir(name):
+                shutil.rmtree(name)
+            else:
+                os.remove(name)
+        except FileNotFoundError:
+            # FileNotFoundError is raised if the file or directory was removed
+            # concurrently.
+            pass
+
     def deletedir(self, path):
-        pass
+        return self.delete(path)

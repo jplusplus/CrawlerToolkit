@@ -20,9 +20,12 @@ def crawl_article_resources(article):
 @task
 def crawl_resources(ids):
     from crawler.core.models import Article
+    resources = list()
     articles = Article.objects.ids(ids).should_be_preserved().is_not_stored()
     articles.set_preserving()
-    resources = map(crawl_article_resources, articles)
+    for a in articles:
+        crawl_article_resources(a)
+
     articles.set_stored()
     return ids
 
