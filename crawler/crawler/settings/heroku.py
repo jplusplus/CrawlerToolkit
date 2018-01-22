@@ -42,11 +42,3 @@ CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', '')
 # Force SSL.
 SECURE_SSL_REDIRECT = True
 
-
-TEST_DATABASES = {
-    'default': dj_database_url.config(env='TEST_DATABASE_URL')
-}
-
-
-# replace path below to point to HerokuTestSuiteRunner class
-TEST_RUNNER = 'crawler.utils.heroku_test_suite.HerokuTestSuiteRunner'
