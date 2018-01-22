@@ -1,1 +1,1 @@
-Sitemap: https://pbellon.github.io/http://jplusplus.github.io/CrawlerToolkit/sitemap.xml
+Sitemap: https://jplusplus.github.io/https://jplusplus.github.io/CrawlerToolkit/sitemap.xml
