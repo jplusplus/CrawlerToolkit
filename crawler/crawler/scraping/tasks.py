@@ -83,7 +83,7 @@ def crawl_feeds(ids=None):
     articles = Article.objects.save_urls(urls)
     ids = pickattr(articles, 'pk')
     # crawl created articles
-    logger.info('crawl_feed created %s articles\nIDS:%s' % (len(articles), ids))
+    logger.info('crawl_feed created %s articles' % len(articles))
     return crawl_articles.apply_async([ids])
 
 def article_preservation_tags(article_id, article_url, *args, **kwargs):
@@ -102,7 +102,6 @@ def crawl_preservation_tags(ids, *args, **kwargs):
     from crawler.core.models import Article
     from crawler.scraping.utils import save_preservation_tags
     tags = list()
-    logger.debug('crawl_preservation_tags %s' % ids)
     articles = Article.objects.ids(ids)
     for article in articles:
         [ title, article_tags] = article_preservation_tags(article.pk, article.url)

@@ -24,7 +24,6 @@ def scrape(account_url, logger=None):
     ).format(name=account_name, count=200)
     req = requests.get(url, auth=auth)
     tweets = req.json()
-    logger.info('received twitter JSON %s' % tweets)
     for tweet in tweets:
         tweet_urls = tweet['entities']['urls']
         if tweet['retweeted']:

@@ -1,1 +1,1 @@
-Sitemap: /sitemap.xml
+Sitemap: https://jplusplus.github.io/CrawlerToolkit/sitemap.xml
