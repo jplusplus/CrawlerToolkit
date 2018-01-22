@@ -4,6 +4,10 @@ VENV_BIN=.venv/bin
 TEST_SITE_DOMAIN='offshorecrawler-rss-feed.surge.sh'
 TEST_SITE_BUILD_FOLDER='test-site-build'
 
+_p () {
+  setup_env
+  python $@
+}
 # Operations on django
 admin () {
   setup_env
