@@ -4,15 +4,10 @@ import re
 from urllib.parse import urlparse
 from uuid import uuid4
 
-from django.contrib.contenttypes.fields import GenericRelation,GenericForeignKey
-from django.core.files.base import ContentFile
-from django.core.exceptions import ValidationError
-from django.core.validators import URLValidator
 from django.core.files.storage import default_storage as storage
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-
 from slugger import AutoSlugField
 
 from crawler import utils

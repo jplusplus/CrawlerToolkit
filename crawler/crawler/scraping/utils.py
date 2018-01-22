@@ -39,7 +39,7 @@ types = {
 def create_tag(ttype, article_id, value):
     __create_tag = types.get(ttype, None)
     if not create_tag:
-        raise ValueError('meta tag type %s not recognized' % ptype)
+        raise ValueError('meta tag type %s not recognized' % ttype)
     return __create_tag(article_id, value)
 
 def save_preservation_tags(preservation_tags):

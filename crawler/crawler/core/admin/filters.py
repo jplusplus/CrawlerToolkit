@@ -1,6 +1,7 @@
 from django.contrib import admin
-from crawler.utils import pickattr
 from crawler.constants import STATES, PRESERVATION_TAGS
+from crawler.scraping.models import preservation_tag_model
+from crawler.utils import pickattr
 
 class ShouldPreserveFilter(admin.SimpleListFilter):
     title = 'need of preservation'
@@ -35,10 +36,6 @@ class ShouldPreserveFilter(admin.SimpleListFilter):
 class PreservationTypeFilter(admin.SimpleListFilter):
     title = 'Preservation tags detected'
     parameter_name = 'preservation_tags'
-    def preservation_tag_model(self, tag_type):
-        model = PRESERVATION_TAGS_MAP.get()
-        if not model:
-            raise ValueError('Tag type not recognized')
     def lookups(self, request, model_admin):
         keywords = (
             (PRESERVATION_TAGS.PRIORITY, 'priority'),

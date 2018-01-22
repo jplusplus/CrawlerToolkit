@@ -1,5 +1,4 @@
 from django.db import models, transaction
-from django.utils import timezone
 from crawler.constants import STATES
 from crawler.archiving.models import ArchivedArticle
 from crawler.scraping.models import ReleaseDateTag, PriorityTag, NotFoundOnlyTag

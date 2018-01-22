@@ -5,7 +5,6 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.urls import reverse
 from material.frontend.models import Module
-from crawler import utils
 from crawler.constants import STATES
 from crawler.core.models import Feed, Article
 from crawler.scraping.models import preservation_tag_type

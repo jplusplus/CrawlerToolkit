@@ -1,13 +1,7 @@
-from datetime import datetime
-import re
-from django.utils import timezone
 from celery.utils.log import get_task_logger
-from celery.contrib import rdb
-
+# from celery.contrib import rdb
 from celery.decorators import task
 from crawler.utils import pickattr
-from crawler.constants import FEED_TYPES
-from crawler.celery import app
 from celery import chain
 
 # Scrapers 

@@ -2,13 +2,12 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.test import TestCase, Client
 import random
-import requests
 import requests_mock
 
 from crawler.utils import pickattr, slimmer
 from crawler.core.models import Feed, Article
 from crawler.storing import utils as storing
-from crawler.archiving.services import ArchiveORG, Service
+from crawler.archiving.services import ArchiveORG
 from crawler.archiving.scrapers import detect_notfound
 
 class ScrapersTestCase(TestCase):

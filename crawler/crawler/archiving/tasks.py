@@ -13,7 +13,6 @@ from crawler.constants import STATES
 logger = log.get_task_logger(__name__)
 
 def archive_article(article):
-    from crawler.archiving.models import ArchivedArticle
     service_name = ''
     archived_url = ''
     # First case: we have no preservation, thus in case of
@@ -61,7 +60,6 @@ def archive_articles(ids=None, skip_filter=False):
         - ids, list of articles ids
     """
     from crawler.core.models import Article
-    archived = list()
     articles = Article.objects.ids(ids)
     if not skip_filter:
         articles = articles.should_be_archived()

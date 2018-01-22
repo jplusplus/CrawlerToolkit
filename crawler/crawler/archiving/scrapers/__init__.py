@@ -1,5 +1,4 @@
 import requests
-from celery.contrib import rdb
 
 def detect_notfound(articles):
     not_found_ids = list()

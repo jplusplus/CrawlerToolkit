@@ -2,13 +2,11 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage as storage
 
-from celery.contrib import rdb
+# from celery.contrib import rdb
 
-from urllib.parse import urlparse
 import re
 
 from crawler.utils import absurl
-from crawler.constants import RESOURCE_TYPES
 
 def mediaurl(path):
     media_url = getattr(settings, 'MEDIA_URL')
@@ -69,9 +67,7 @@ def save_resource(
         uniq_fn=uniq_fn,
         resource_type=resource_type
     )
-    f = storage.save(path, ContentFile(content))
-
-
+    storage.save(path, ContentFile(content))
     resource['hosted_url'] = mediaurl(path)
     return resource
 

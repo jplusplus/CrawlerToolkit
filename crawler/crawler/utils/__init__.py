@@ -1,6 +1,5 @@
 from django.db import connection
 from django.conf import settings
-from urllib.parse import urlparse
 from pprint import pprint
 
 # Plain Old Python Object
