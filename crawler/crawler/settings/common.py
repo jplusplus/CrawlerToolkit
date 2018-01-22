@@ -83,7 +83,7 @@ ROOT_URLCONF = 'crawler.urls'
 
 
 TEMPLATES_DIRS = (
-    os.path.join(BASE_DIR, 'crawler', 'templates'),
+    os.path.join(BASE_DIR, 'templates'),
 )
 
 TEMPLATES = [
