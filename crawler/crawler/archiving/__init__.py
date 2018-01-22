@@ -1,10 +1,10 @@
 from crawler.archiving import services as archive
-from crawler.archiving.models import ArchivedArticle
 from crawler.archiving.scrapers import detect_notfound
 
 from crawler.constants import STATES
 
 def archive_article(article):
+    from crawler.archiving.models import ArchivedArticle
     service_name = ''
     archived_url = ''
     # First case: we have no preservation, thus in case of
