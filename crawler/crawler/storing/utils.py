@@ -10,10 +10,15 @@ from crawler.constants import RESOURCE_TYPES
 
 def mediaurl(path):
     media_url = getattr(settings, 'MEDIA_URL')
-    return absurl('{media}{path}'.format(
+    path  = '{media}{path}'.format(
         media=media_url,
         path=path
-    ))
+    )
+    if not path.startswith('http'):
+        path = absurl(path)
+
+    return path
+
 
 def as_hosted_content(content, resources):
     """
@@ -30,7 +35,6 @@ def as_hosted_content(content, resources):
         content = content.decode()
 
     if len(resources) > 0:
-        print('\n\nresources: %s' % resources)
         mapped_urls = {
             resource['url']: resource['hosted_url'] for resource in resources
         }

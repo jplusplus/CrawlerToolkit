@@ -145,7 +145,7 @@ class UtilsTestCase(StoringTestCase):
         media = settings.MEDIA_URL
         self.assertEqual(
             utils.mediaurl('style.css'),
-            '{0}{1}style.css'.format(domain, media)
+            'http://localhost:4000/media/style.css'.format(domain, media)
         )
         self.assertEqual(
             utils.mediaurl('style.css?v=0.0'),
