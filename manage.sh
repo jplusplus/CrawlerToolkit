@@ -26,17 +26,23 @@ _heroku() {
   heroku $args --remote $remote
 }
 
-# Usage: _django_heroku <git remote branch> 
+# Usage: _django_heroku <git remote branch> <command args>
 _django_heroku () {
   remote=$1
   args=("$@")
   args=${args[@]:1}
-  heroku run python manage.py $args --remote $remote
+  heroku run python manage.py "${args}" --remote $remote
+}
+
+backup_heroku() {
+  remote=${1:-heroku}
+  heroku run python manage.py dumpdata auth.user core scraping archiving  --remote $remote -- > backup_heroku.json
 }
 
 django_heroku () {
   _django_heroku heroku $@
 }
+
 
 django () {
   setup_env
