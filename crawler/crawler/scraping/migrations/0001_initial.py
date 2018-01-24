@@ -26,6 +26,7 @@ class Migration(migrations.Migration):
                 'abstract': False,
                 'db_table': 'scraping_notfoundonlytag',
             },
+            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='PriorityTag',
@@ -38,6 +39,7 @@ class Migration(migrations.Migration):
                 'abstract': False,
                 'db_table': 'scraping_prioritytag',
             },
+            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='ReleaseDateTag',
@@ -50,6 +52,7 @@ class Migration(migrations.Migration):
                 'abstract': False,
                 'db_table': 'scraping_releasedatetag',
             },
+            bases=(models.Model,),
         ),
     ]
     operations = [
