@@ -172,11 +172,11 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULE = {
     'crawl-feeds': {
         'task': 'crawler.scraping.tasks.crawl_feeds',
-        'schedule': crontab(minute='*/30')
+        'schedule': crontab(hour='*/2', minute='*/30')
     },
     'archive-articles': {
         'task': 'crawler.archiving.tasks.check_articles_to_archive',
-        'schedule': crontab(minute='*/30')
+        'schedule': crontab(hours='*/2', minute='*/30')
     }
 }
 
