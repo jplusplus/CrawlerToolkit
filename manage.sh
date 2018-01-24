@@ -36,7 +36,13 @@ _django_heroku () {
 
 backup_heroku() {
   remote=${1:-heroku}
-  heroku run python manage.py dumpdata auth.user core scraping archiving  --remote $remote -- > backup_heroku.json
+  heroku run python manage.py dumpdata \
+    --all --natural-primary --natural-foreign \
+    --exclude=auth \
+    --exclude=frontend \
+    --exclude=sessions \
+    --remote $remote \
+    -- > backup_heroku.json
 }
 
 django_heroku () {
